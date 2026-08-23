@@ -1,0 +1,269 @@
+// ---------------------------------------------------------------
+// Streetwatch frontend logic.
+// Talks to the FastAPI backend at /api/reports.
+// No frameworks — plain JS + Leaflet, kept simple on purpose so it's
+// easy to explain in your technical documentation.
+// ---------------------------------------------------------------
+
+const API_BASE = "/api/reports";
+
+// Default map view — adjust to your city/area.
+const DEFAULT_CENTER = [6.9271, 79.8612]; // Colombo, Sri Lanka
+const DEFAULT_ZOOM = 12;
+
+const STATUS_LABELS = {
+  reported: "Reported",
+  in_progress: "In progress",
+  resolved: "Resolved",
+};
+
+const HAZARD_LABELS = {
+  pothole: "Pothole",
+  broken_streetlight: "Broken streetlight",
+  flooding: "Flooding",
+  damaged_sidewalk: "Damaged sidewalk",
+  fallen_tree: "Fallen tree",
+  other: "Other hazard",
+};
+
+let map;
+let markers = {}; // report.id -> Leaflet marker
+let pickedLatLng = null;
+let currentReports = [];
+
+// ---------- Init ----------
+
+function initMap() {
+  map = L.map("map").setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors",
+    maxZoom: 19,
+  }).addTo(map);
+
+  // Clicking the map while the report form is open drops the pin.
+  map.on("click", (e) => {
+    const modal = document.getElementById("report-modal");
+    if (modal.classList.contains("hidden")) return;
+    setPickedLocation(e.latlng.lat, e.latlng.lng);
+  });
+}
+
+function setPickedLocation(lat, lng) {
+  pickedLatLng = { lat, lng };
+  document.querySelector('input[name="latitude"]').value = lat;
+  document.querySelector('input[name="longitude"]').value = lng;
+
+  const readout = document.getElementById("picked-coords");
+  readout.textContent = `Pinned at ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  readout.classList.add("picked");
+}
+
+// ---------- Data loading ----------
+
+async function loadReports() {
+  const statusFilter = document.getElementById("status-filter").value;
+  const url = statusFilter ? `${API_BASE}?status=${statusFilter}` : API_BASE;
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    console.error("Failed to load reports", await res.text());
+    return;
+  }
+  currentReports = await res.json();
+  renderMarkers(currentReports);
+  renderList(currentReports);
+}
+
+function renderMarkers(reports) {
+  Object.values(markers).forEach((m) => map.removeLayer(m));
+  markers = {};
+
+  reports.forEach((report) => {
+    const marker = L.circleMarker([report.latitude, report.longitude], {
+      radius: 9,
+      color: "#1c1f1e",
+      weight: 1.5,
+      fillColor: colorForStatus(report.status),
+      fillOpacity: 0.9,
+    }).addTo(map);
+
+    marker.bindPopup(popupHtml(report));
+    markers[report.id] = marker;
+  });
+}
+
+function colorForStatus(status) {
+  return { reported: "#e2601c", in_progress: "#f4c20d", resolved: "#3f7d5c" }[status];
+}
+
+function popupHtml(report) {
+  return `
+    <strong>${HAZARD_LABELS[report.hazard_type]}</strong><br/>
+    ${escapeHtml(report.description)}<br/>
+    <em>${STATUS_LABELS[report.status]}</em>
+  `;
+}
+
+function renderList(reports) {
+  const list = document.getElementById("report-list");
+  list.innerHTML = "";
+
+  if (reports.length === 0) {
+    list.innerHTML = `<li class="empty-state">No reports yet — be the first to flag something.</li>`;
+    return;
+  }
+
+  reports.forEach((report) => {
+    const li = document.createElement("li");
+    li.className = `report-card status-${report.status}`;
+    li.innerHTML = `
+      <div class="report-card-top">
+        <span class="report-type">${HAZARD_LABELS[report.hazard_type]}</span>
+        <span class="report-id">#${String(report.id).padStart(4, "0")}</span>
+      </div>
+      <p class="report-desc">${escapeHtml(report.description)}</p>
+      <div class="status-row">
+        <span class="status-pill ${report.status}">${STATUS_LABELS[report.status]}</span>
+        <select class="status-select" data-id="${report.id}">
+          ${Object.keys(STATUS_LABELS)
+            .map(
+              (s) =>
+                `<option value="${s}" ${s === report.status ? "selected" : ""}>${STATUS_LABELS[s]}</option>`
+            )
+            .join("")}
+        </select>
+      </div>
+    `;
+
+    li.addEventListener("click", (e) => {
+      // Don't fly to map if the click was on the status dropdown itself.
+      if (e.target.tagName === "SELECT") return;
+      map.setView([report.latitude, report.longitude], 16);
+      markers[report.id].openPopup();
+    });
+
+    list.appendChild(li);
+  });
+
+  // Wire up status-change selects (the second "meaningful interaction").
+  document.querySelectorAll(".status-select").forEach((select) => {
+    select.addEventListener("change", async (e) => {
+      e.stopPropagation();
+      const id = e.target.dataset.id;
+      const newStatus = e.target.value;
+      await updateStatus(id, newStatus);
+    });
+    select.addEventListener("click", (e) => e.stopPropagation());
+  });
+}
+
+async function updateStatus(id, status) {
+  if (!isLoggedIn()) {
+    window.location.href = "/login?next=/map";
+    return;
+  }
+
+  const res = await fetch(
+    `${API_BASE}/${id}`,
+    withAuthHeader({
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    })
+  );
+
+  if (res.status === 401) {
+    alert("Your session expired — please log in again.");
+    clearSession();
+    window.location.href = "/login?next=/map";
+    return;
+  }
+
+  if (!res.ok) {
+    alert("Couldn't update status — try again.");
+    return;
+  }
+  await loadReports();
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ---------- Form / modal ----------
+
+function initModal() {
+  const modal = document.getElementById("report-modal");
+  const openBtn = document.getElementById("new-report-btn");
+  const closeBtn = document.getElementById("close-modal");
+  const form = document.getElementById("report-form");
+
+  openBtn.addEventListener("click", () => {
+    if (!isLoggedIn()) {
+      window.location.href = "/login?next=/map";
+      return;
+    }
+    modal.classList.remove("hidden");
+  });
+
+  closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (!pickedLatLng) {
+      alert("Click a location on the map first.");
+      return;
+    }
+
+    const formData = new FormData(form);
+    const payload = {
+      hazard_type: formData.get("hazard_type"),
+      description: formData.get("description"),
+      latitude: pickedLatLng.lat,
+      longitude: pickedLatLng.lng,
+    };
+
+    const res = await fetch(
+      API_BASE,
+      withAuthHeader({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+    );
+
+    if (res.status === 401) {
+      alert("Your session expired — please log in again.");
+      clearSession();
+      window.location.href = "/login?next=/map";
+      return;
+    }
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert("Couldn't submit report: " + (err.detail || res.statusText));
+      return;
+    }
+
+    form.reset();
+    pickedLatLng = null;
+    document.getElementById("picked-coords").textContent = "No location selected yet";
+    document.getElementById("picked-coords").classList.remove("picked");
+    modal.classList.add("hidden");
+    await loadReports();
+  });
+}
+
+// ---------- Bootstrap ----------
+
+document.addEventListener("DOMContentLoaded", () => {
+  initAuthNav();
+  initMap();
+  initModal();
+  document.getElementById("status-filter").addEventListener("change", loadReports);
+  loadReports();
+});

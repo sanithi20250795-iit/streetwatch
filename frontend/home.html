@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streetwatch — Report local hazards, track fixes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/home.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="/" class="brand" style="text-decoration:none; color:inherit;">
+      <span class="brand-mark">⚠</span>
+      <div>
+        <h1>STREETWATCH</h1>
+        <p class="brand-sub">Community infrastructure hazard log — SDG 11</p>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="/map" class="btn-ghost">View Map</a>
+      <a href="/login" class="btn-primary">Log in</a>
+    </div>
+  </header>
+
+  <main class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">SDG 11 — Sustainable Cities &amp; Communities</p>
+      <h2>Broken streetlight?<br>Flooded road?<br><span class="accent">Log it. Track it. Fix it.</span></h2>
+      <p class="hero-sub">
+        Streetwatch is a shared, visible log of local infrastructure hazards —
+        potholes, broken streetlights, flooding, damaged sidewalks — reported
+        by the people who actually walk past them every day.
+      </p>
+      <div class="hero-actions">
+        <a href="/map" class="btn-primary large">View the live map</a>
+        <a href="/login" class="btn-ghost large">Report a hazard</a>
+      </div>
+    </div>
+
+    <div class="hero-panel">
+      <div class="status-legend">
+        <p class="legend-title">How a report moves</p>
+        <div class="legend-row"><span class="dot dot-reported"></span> Reported</div>
+        <div class="legend-arrow">↓</div>
+        <div class="legend-row"><span class="dot dot-progress"></span> In progress</div>
+        <div class="legend-arrow">↓</div>
+        <div class="legend-row"><span class="dot dot-resolved"></span> Resolved</div>
+      </div>
+    </div>
+  </main>
+
+  <section class="how-it-works">
+    <h3>How it works</h3>
+    <div class="steps-grid">
+      <div class="step">
+        <span class="step-num">01</span>
+        <h4>Spot it</h4>
+        <p>See a pothole, broken light, or flooded stretch of road on your way somewhere.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <h4>Pin it</h4>
+        <p>Log in, drop a pin on the map, describe the hazard, submit.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <h4>Track it</h4>
+        <p>Everyone can see the report's status move from Reported to Resolved.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>Built for Summer School 2.0 — Informatics Institute of Technology × IET.</p>
+  </footer>
+
+</body>
+</html>

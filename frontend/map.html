@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streetwatch — Community Hazard Reports</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="/" class="brand" style="text-decoration:none; color:inherit;">
+      <span class="brand-mark">⚠</span>
+      <div>
+        <h1>STREETWATCH</h1>
+        <p class="brand-sub">Community infrastructure hazard log — SDG 11</p>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <span id="user-greeting" class="user-greeting hidden"></span>
+      <button id="logout-btn" class="btn-ghost hidden">Log out</button>
+      <button id="new-report-btn" class="btn-primary">+ Report a Hazard</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="map-panel">
+      <div id="map"></div>
+    </section>
+
+    <aside class="list-panel">
+      <div class="list-header">
+        <h2>Open Log</h2>
+        <select id="status-filter">
+          <option value="">All statuses</option>
+          <option value="reported">Reported</option>
+          <option value="in_progress">In progress</option>
+          <option value="resolved">Resolved</option>
+        </select>
+      </div>
+      <ul id="report-list" class="report-list"></ul>
+    </aside>
+  </main>
+
+  <!-- New report modal -->
+  <div id="report-modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>File a hazard report</h2>
+        <button id="close-modal" class="btn-icon">✕</button>
+      </div>
+      <form id="report-form">
+        <label>
+          Hazard type
+          <select name="hazard_type" required>
+            <option value="pothole">Pothole</option>
+            <option value="broken_streetlight">Broken streetlight</option>
+            <option value="flooding">Flooding</option>
+            <option value="damaged_sidewalk">Damaged sidewalk</option>
+            <option value="fallen_tree">Fallen tree</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+
+        <label>
+          Description
+          <textarea name="description" required minlength="5" maxlength="500"
+            placeholder="What's the issue, and how urgent is it?"></textarea>
+        </label>
+
+        <div class="location-field">
+          <p class="ticket-note">Click a point on the map to drop your pin, then submit.</p>
+          <p id="picked-coords" class="coords-readout">No location selected yet</p>
+        </div>
+
+        <input type="hidden" name="latitude">
+        <input type="hidden" name="longitude">
+
+        <button type="submit" class="btn-primary full-width">Submit Report</button>
+      </form>
+    </div>
+  </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/auth.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
