@@ -3,6 +3,10 @@
 // Talks to the FastAPI backend at /api/reports.
 // No frameworks — plain JS + Leaflet, kept simple on purpose so it's
 // easy to explain in your technical documentation.
+//
+// Depends on auth.js being loaded first (STATUS_LABELS, HAZARD_LABELS,
+// SEVERITY_LABELS, colorForStatus, escapeHtml, and the auth/session
+// helpers all live there).
 // ---------------------------------------------------------------
 
 const API_BASE = "/api/reports";
@@ -10,21 +14,6 @@ const API_BASE = "/api/reports";
 // Default map view — adjust to your city/area.
 const DEFAULT_CENTER = [6.9271, 79.8612]; // Colombo, Sri Lanka
 const DEFAULT_ZOOM = 12;
-
-const STATUS_LABELS = {
-  reported: "Reported",
-  in_progress: "In progress",
-  resolved: "Resolved",
-};
-
-const HAZARD_LABELS = {
-  pothole: "Pothole",
-  broken_streetlight: "Broken streetlight",
-  flooding: "Flooding",
-  damaged_sidewalk: "Damaged sidewalk",
-  fallen_tree: "Fallen tree",
-  other: "Other hazard",
-};
 
 let map;
 let markers = {}; // report.id -> Leaflet marker
@@ -57,6 +46,34 @@ function setPickedLocation(lat, lng) {
   const readout = document.getElementById("picked-coords");
   readout.textContent = `Pinned at ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
   readout.classList.add("picked");
+
+  // If the map is visible behind the modal, center it on the pin too.
+  if (map) map.panTo([lat, lng]);
+}
+
+function useMyLocation() {
+  if (!navigator.geolocation) {
+    alert("Your browser doesn't support geolocation. Click a point on the map instead.");
+    return;
+  }
+
+  const btn = document.getElementById("use-my-location-btn");
+  btn.disabled = true;
+  btn.textContent = "Locating…";
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      setPickedLocation(position.coords.latitude, position.coords.longitude);
+      btn.disabled = false;
+      btn.textContent = "📍 Use My Location";
+    },
+    (error) => {
+      alert("Couldn't get your location — click a point on the map instead.");
+      btn.disabled = false;
+      btn.textContent = "📍 Use My Location";
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
 }
 
 // ---------- Data loading ----------
@@ -93,16 +110,21 @@ function renderMarkers(reports) {
   });
 }
 
-function colorForStatus(status) {
-  return { reported: "#e2601c", in_progress: "#f4c20d", resolved: "#3f7d5c" }[status];
-}
-
 function popupHtml(report) {
+  const media = report.media_url && isImageUrl(report.media_url)
+    ? `<img src="${report.media_url}" alt="Attached photo" style="width:100%;max-width:220px;border-radius:4px;margin-top:6px;display:block;" />`
+    : "";
   return `
-    <strong>${HAZARD_LABELS[report.hazard_type]}</strong><br/>
+    <strong>${escapeHtml(report.title)}</strong><br/>
+    ${HAZARD_LABELS[report.hazard_type]} · <em>${SEVERITY_LABELS[report.severity]}</em><br/>
     ${escapeHtml(report.description)}<br/>
     <em>${STATUS_LABELS[report.status]}</em>
+    ${media}
   `;
+}
+
+function isImageUrl(url) {
+  return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
 }
 
 function renderList(reports) {
@@ -122,9 +144,11 @@ function renderList(reports) {
         <span class="report-type">${HAZARD_LABELS[report.hazard_type]}</span>
         <span class="report-id">#${String(report.id).padStart(4, "0")}</span>
       </div>
+      <p class="report-title">${escapeHtml(report.title)}</p>
       <p class="report-desc">${escapeHtml(report.description)}</p>
       <div class="status-row">
         <span class="status-pill ${report.status}">${STATUS_LABELS[report.status]}</span>
+        <span class="severity-pill severity-${report.severity}">${SEVERITY_LABELS[report.severity]}</span>
         <select class="status-select" data-id="${report.id}">
           ${Object.keys(STATUS_LABELS)
             .map(
@@ -187,12 +211,6 @@ async function updateStatus(id, status) {
   await loadReports();
 }
 
-function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
-}
-
 // ---------- Form / modal ----------
 
 function initModal() {
@@ -211,28 +229,30 @@ function initModal() {
 
   closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
 
+  document.getElementById("use-my-location-btn").addEventListener("click", useMyLocation);
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     if (!pickedLatLng) {
-      alert("Click a location on the map first.");
+      alert("Click a location on the map, or use 'Use My Location', first.");
       return;
     }
 
+    // Sending FormData (not JSON) because the backend endpoint accepts
+    // multipart/form-data — required so the optional photo/video file can
+    // travel alongside the text fields in the same request. The hidden
+    // latitude/longitude inputs are already filled in by setPickedLocation.
     const formData = new FormData(form);
-    const payload = {
-      hazard_type: formData.get("hazard_type"),
-      description: formData.get("description"),
-      latitude: pickedLatLng.lat,
-      longitude: pickedLatLng.lng,
-    };
 
     const res = await fetch(
       API_BASE,
       withAuthHeader({
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: formData,
+        // No Content-Type header here on purpose — the browser sets the
+        // correct multipart/form-data boundary automatically. Setting it
+        // manually breaks the upload.
       })
     );
 

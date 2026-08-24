@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Streetwatch — Report local hazards, track fixes</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/style.css">
@@ -21,7 +22,9 @@
     </a>
     <div class="nav-actions">
       <a href="/map" class="btn-ghost">View Map</a>
-      <a href="/login" class="btn-primary">Log in</a>
+      <span id="user-greeting" class="user-greeting hidden"></span>
+      <button id="logout-btn" class="btn-ghost hidden">Log out</button>
+      <a id="nav-login-btn" href="/login" class="btn-primary">Log in</a>
     </div>
   </header>
 
@@ -35,8 +38,8 @@
         by the people who actually walk past them every day.
       </p>
       <div class="hero-actions">
-        <a href="/map" class="btn-primary large">View the live map</a>
-        <a href="/login" class="btn-ghost large">Report a hazard</a>
+        <a href="/login?next=/map" class="btn-primary large">+ Report a Hazard</a>
+        <a href="/map" class="btn-ghost large">View the live map</a>
       </div>
     </div>
 
@@ -51,6 +54,85 @@
       </div>
     </div>
   </main>
+
+  <!-- Live stats -->
+  <section class="stats-bar">
+    <div class="stat-card">
+      <span class="stat-number" id="stat-total">—</span>
+      <span class="stat-label">Total Reports</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number" id="stat-active">—</span>
+      <span class="stat-label">Active Hazards</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number" id="stat-progress">—</span>
+      <span class="stat-label">In Progress</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number" id="stat-resolved">—</span>
+      <span class="stat-label">Resolved</span>
+    </div>
+  </section>
+
+  <!-- Map preview -->
+  <section class="preview-section">
+    <div class="preview-section-head">
+      <h3>Hazards near you, right now</h3>
+      <a href="/map" class="link-arrow">Open full map →</a>
+    </div>
+    <div class="preview-map-wrap">
+      <div id="preview-map"></div>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="categories-section">
+    <h3>Hazard categories</h3>
+    <div class="categories-grid">
+      <div class="category-card" data-type="pothole">
+        <span class="category-icon">🕳️</span>
+        <span class="category-name">Pothole</span>
+        <span class="category-count" data-count-for="pothole">0</span>
+      </div>
+      <div class="category-card" data-type="broken_streetlight">
+        <span class="category-icon">💡</span>
+        <span class="category-name">Broken Streetlight</span>
+        <span class="category-count" data-count-for="broken_streetlight">0</span>
+      </div>
+      <div class="category-card" data-type="flooding">
+        <span class="category-icon">🌊</span>
+        <span class="category-name">Flooding</span>
+        <span class="category-count" data-count-for="flooding">0</span>
+      </div>
+      <div class="category-card" data-type="damaged_sidewalk">
+        <span class="category-icon">🚧</span>
+        <span class="category-name">Damaged Sidewalk</span>
+        <span class="category-count" data-count-for="damaged_sidewalk">0</span>
+      </div>
+      <div class="category-card" data-type="fallen_tree">
+        <span class="category-icon">🌳</span>
+        <span class="category-name">Fallen Tree</span>
+        <span class="category-count" data-count-for="fallen_tree">0</span>
+      </div>
+      <div class="category-card" data-type="other">
+        <span class="category-icon">⚠️</span>
+        <span class="category-name">Other</span>
+        <span class="category-count" data-count-for="other">0</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent reports -->
+  <section class="recent-section">
+    <div class="preview-section-head">
+      <h3>Recent reports</h3>
+      <a href="/map" class="link-arrow">See all →</a>
+    </div>
+    <ul id="recent-reports-list" class="recent-reports-list">
+      <li class="empty-state">Loading recent reports…</li>
+    </ul>
+  </section>
 
   <section class="how-it-works">
     <h3>How it works</h3>
@@ -73,9 +155,29 @@
     </div>
   </section>
 
+  <!-- SDG 11 connection -->
+  <section class="sdg-block">
+    <div class="sdg-badge">SDG 11</div>
+    <div class="sdg-copy">
+      <h3>Sustainable Cities and Communities</h3>
+      <p>
+        UN Sustainable Development Goal 11 calls for cities that are safe,
+        resilient, and inclusive. A big part of that is infrastructure that
+        actually works — roads without hazards, lighting people can rely on,
+        drainage that doesn't flood the first street it meets. Streetwatch
+        gives communities a direct, visible channel to flag what's broken
+        and see it get fixed, instead of hazards sitting unreported and
+        unresolved indefinitely.
+      </p>
+    </div>
+  </section>
+
   <footer class="site-footer">
     <p>Built for Summer School 2.0 — Informatics Institute of Technology × IET.</p>
   </footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/auth.js"></script>
+<script src="/static/home.js"></script>
 </body>
 </html>

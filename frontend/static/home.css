@@ -249,3 +249,193 @@
   font-size: 13px;
   margin: 12px 0 0;
 }
+
+/* ---------- Stats bar ---------- */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 48px 50px;
+}
+
+@media (max-width: 720px) {
+  .stats-bar { grid-template-columns: repeat(2, 1fr); padding: 0 24px 40px; }
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--safety-yellow);
+  border-radius: 6px;
+  padding: 20px 18px;
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 34px;
+  color: var(--asphalt);
+}
+
+.stat-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink-soft);
+  margin-top: 6px;
+}
+
+/* ---------- Shared section head ---------- */
+.preview-section,
+.categories-section,
+.recent-section {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 48px 60px;
+}
+
+@media (max-width: 720px) {
+  .preview-section,
+  .categories-section,
+  .recent-section { padding: 0 24px 44px; }
+}
+
+.preview-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.preview-section-head h3,
+.categories-section h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  margin: 0;
+}
+
+.link-arrow {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--safety-orange);
+  text-decoration: none;
+  font-weight: 600;
+}
+.link-arrow:hover { text-decoration: underline; }
+
+/* ---------- Map preview ---------- */
+.preview-map-wrap {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+#preview-map {
+  width: 100%;
+  height: 300px;
+}
+
+/* ---------- Categories ---------- */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 860px) {
+  .categories-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 480px) {
+  .categories-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.category-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 16px 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.category-icon { font-size: 22px; }
+
+.category-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.category-count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--safety-orange);
+  font-weight: 700;
+}
+
+/* ---------- Recent reports (reuses .report-card / .status-pill from style.css) ---------- */
+.recent-reports-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.recent-reports-list .report-card {
+  cursor: default;
+}
+
+.recent-reports-list .status-row {
+  display: none; /* homepage cards don't need the status-change dropdown */
+}
+
+/* ---------- SDG 11 block ---------- */
+.sdg-block {
+  max-width: 1180px;
+  margin: 0 auto 60px;
+  padding: 36px 48px;
+  background: var(--asphalt);
+  border-radius: 10px;
+  border-left: 8px solid #FD9D24; /* official UN SDG 11 color */
+  display: flex;
+  gap: 26px;
+  align-items: flex-start;
+  color: var(--paper);
+}
+
+@media (max-width: 720px) {
+  .sdg-block { flex-direction: column; padding: 26px 24px; margin: 0 24px 44px; }
+}
+
+.sdg-badge {
+  background: #FD9D24;
+  color: var(--asphalt);
+  font-family: var(--font-display);
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.sdg-copy h3 {
+  font-family: var(--font-display);
+  font-size: 19px;
+  margin: 0 0 10px;
+}
+
+.sdg-copy p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #d8d5c8;
+  margin: 0;
+  max-width: 68ch;
+}

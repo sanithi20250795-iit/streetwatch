@@ -187,7 +187,14 @@ body {
   line-height: 1.4;
 }
 
-.status-row { display: flex; align-items: center; gap: 8px; }
+.report-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 2px 0 0;
+}
+
+.status-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 .status-pill {
   font-family: var(--font-mono);
@@ -200,6 +207,20 @@ body {
 }
 .status-pill.in_progress { background: var(--status-progress); }
 .status-pill.resolved { background: var(--status-resolved); color: var(--paper); }
+
+.severity-pill {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 20px;
+  color: var(--paper);
+  background: var(--status-resolved);
+}
+.severity-pill.severity-low { background: var(--status-resolved); }
+.severity-pill.severity-medium { background: var(--status-progress); color: var(--asphalt); }
+.severity-pill.severity-high { background: var(--status-reported); }
+.severity-pill.severity-critical { background: #b3261e; }
 
 .status-select {
   font-family: var(--font-mono);
@@ -274,7 +295,9 @@ body {
 
 #report-form select,
 #report-form textarea,
-#report-form input[type="text"] {
+#report-form input[type="text"],
+#report-form input[type="datetime-local"],
+#report-form input[type="file"] {
   width: 100%;
   margin-top: 6px;
   padding: 10px;
@@ -294,6 +317,29 @@ body {
   border: 1px dashed var(--line);
   border-radius: 4px;
 }
+
+.location-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-locate {
+  background: var(--card);
+  border: 1px solid var(--safety-orange);
+  color: var(--safety-orange);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-locate:hover { background: rgba(226, 96, 28, 0.08); }
+.btn-locate:disabled { opacity: 0.6; cursor: default; }
 
 .ticket-note { margin: 0 0 4px; font-size: 12px; color: var(--ink-soft); }
 
