@@ -81,7 +81,7 @@ async function initPreviewMap() {
         radius: 7,
         color: "#1c1f1e",
         weight: 1.5,
-        fillColor: colorForStatus(r.status),
+        fillColor: colorForMarker(r),
         fillOpacity: 0.9,
       })
         .bindPopup(`<strong>${HAZARD_LABELS[r.hazard_type]}</strong><br/>${STATUS_LABELS[r.status]}`)

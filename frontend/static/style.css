@@ -130,14 +130,7 @@ body {
   margin: 0;
 }
 
-#status-filter {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 6px 8px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: var(--paper);
-}
+
 
 .report-list {
   list-style: none;
@@ -353,3 +346,106 @@ body {
 
 /* Leaflet popup tweaks */
 .leaflet-popup-content { font-family: var(--font-body); font-size: 13px; }
+
+/* ---------- Filters bar ---------- */
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 14px 28px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 130px;
+}
+
+.filter-field-grow { flex: 1; min-width: 200px; }
+
+.filter-field label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--ink-soft);
+}
+
+.filter-field select,
+.filter-field input {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.btn-ghost-small {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-ghost-small:hover { background: var(--paper); color: var(--ink); }
+
+.results-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+/* ---------- Map legend ---------- */
+.map-legend {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 14px;
+  z-index: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.legend-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--ink-soft);
+  margin: 0 0 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 2px 0;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
+/* ---------- Popup card (rendered inside Leaflet popups) ---------- */
+.popup-card { min-width: 180px; }
+.popup-title { display: block; font-size: 14px; margin-bottom: 6px; }
+.popup-row { margin: 2px 0; font-size: 12px; line-height: 1.4; }
+.popup-id { color: var(--ink-soft); font-family: var(--font-mono); font-size: 11px; }

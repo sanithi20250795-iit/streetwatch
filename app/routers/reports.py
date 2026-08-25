@@ -10,7 +10,7 @@ brief asks for:
 import os
 import shutil
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
@@ -96,15 +96,30 @@ async def create_report(
 @router.get("", response_model=List[HazardReport])
 def list_reports(
     status: Optional[HazardStatus] = Query(default=None, description="Filter by status"),
+    hazard_type: Optional[HazardType] = Query(default=None, description="Filter by hazard category"),
+    severity: Optional[Severity] = Query(default=None, description="Filter by severity"),
+    date_from: Optional[date] = Query(default=None, description="Only reports created on/after this date"),
+    date_to: Optional[date] = Query(default=None, description="Only reports created on/before this date"),
+    location: Optional[str] = Query(default=None, description="Case-insensitive search within the location/address text"),
     limit: Optional[int] = Query(default=None, description="Max number of reports to return"),
     session: Session = Depends(get_session),
 ):
-    """List all reports, optionally filtered by status and capped with a
-    limit. Powers the map view and, with a small limit, the homepage's
+    """List all reports, with optional filters and a limit. Powers the map
+    view (with all filters) and, with a small limit, the homepage's
     'Recent reports' section."""
     statement = select(HazardReport)
     if status:
         statement = statement.where(HazardReport.status == status)
+    if hazard_type:
+        statement = statement.where(HazardReport.hazard_type == hazard_type)
+    if severity:
+        statement = statement.where(HazardReport.severity == severity)
+    if date_from:
+        statement = statement.where(HazardReport.created_at >= datetime.combine(date_from, datetime.min.time()))
+    if date_to:
+        statement = statement.where(HazardReport.created_at <= datetime.combine(date_to, datetime.max.time()))
+    if location:
+        statement = statement.where(HazardReport.location_address.ilike(f"%{location}%"))
     statement = statement.order_by(HazardReport.created_at.desc())
     if limit:
         statement = statement.limit(limit)

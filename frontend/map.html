@@ -26,20 +26,82 @@
     </div>
   </header>
 
+  <!-- Filters -->
+  <section class="filters-bar">
+    <div class="filter-field">
+      <label for="filter-hazard-type">Hazard type</label>
+      <select id="filter-hazard-type">
+        <option value="">All types</option>
+        <option value="pothole">🕳️ Pothole</option>
+        <option value="broken_streetlight">💡 Broken streetlight</option>
+        <option value="damaged_road">🛣️ Damaged/unsafe road</option>
+        <option value="flooding">🌊 Flooding</option>
+        <option value="broken_traffic_signal">🚦 Broken traffic signal</option>
+        <option value="illegal_dumping">🗑️ Waste / illegal dumping</option>
+        <option value="water_leakage">🚰 Water leakage</option>
+        <option value="unsafe_infrastructure">🏗️ Unsafe infrastructure</option>
+        <option value="fallen_tree">🌳 Fallen tree</option>
+        <option value="electrical_hazard">⚡ Electrical hazard</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label for="filter-status">Status</label>
+      <select id="filter-status">
+        <option value="">All statuses</option>
+        <option value="reported">Reported</option>
+        <option value="in_progress">In progress</option>
+        <option value="resolved">Resolved</option>
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label for="filter-severity">Severity</label>
+      <select id="filter-severity">
+        <option value="">All severities</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+        <option value="critical">Critical</option>
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label for="filter-date-from">From</label>
+      <input type="date" id="filter-date-from">
+    </div>
+
+    <div class="filter-field">
+      <label for="filter-date-to">To</label>
+      <input type="date" id="filter-date-to">
+    </div>
+
+    <div class="filter-field filter-field-grow">
+      <label for="filter-location">Location / area</label>
+      <input type="text" id="filter-location" placeholder="Search by area, road, landmark…">
+    </div>
+
+    <button id="filter-reset-btn" class="btn-ghost-small" type="button">Reset filters</button>
+  </section>
+
   <main class="layout">
     <section class="map-panel">
       <div id="map"></div>
+      <div class="map-legend">
+        <p class="legend-title">Marker color</p>
+        <div class="legend-item"><span class="legend-dot" style="background:#dc2626"></span> Critical</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#e2601c"></span> High</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#f4c20d"></span> Medium</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span> Low</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#3f7d5c"></span> Resolved</div>
+      </div>
     </section>
 
     <aside class="list-panel">
       <div class="list-header">
         <h2>Open Log</h2>
-        <select id="status-filter">
-          <option value="">All statuses</option>
-          <option value="reported">Reported</option>
-          <option value="in_progress">In progress</option>
-          <option value="resolved">Resolved</option>
-        </select>
+        <span id="results-count" class="results-count"></span>
       </div>
       <ul id="report-list" class="report-list"></ul>
     </aside>

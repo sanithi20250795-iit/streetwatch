@@ -5,8 +5,8 @@
 // easy to explain in your technical documentation.
 //
 // Depends on auth.js being loaded first (STATUS_LABELS, HAZARD_LABELS,
-// SEVERITY_LABELS, colorForStatus, escapeHtml, and the auth/session
-// helpers all live there).
+// SEVERITY_LABELS, colorForStatus, colorForMarker, formatReportId,
+// formatDate, escapeHtml, and the auth/session helpers all live there).
 // ---------------------------------------------------------------
 
 const API_BASE = "/api/reports";
@@ -78,9 +78,29 @@ function useMyLocation() {
 
 // ---------- Data loading ----------
 
+function buildFilterQuery() {
+  const params = new URLSearchParams();
+
+  const hazardType = document.getElementById("filter-hazard-type").value;
+  const status = document.getElementById("filter-status").value;
+  const severity = document.getElementById("filter-severity").value;
+  const dateFrom = document.getElementById("filter-date-from").value;
+  const dateTo = document.getElementById("filter-date-to").value;
+  const location = document.getElementById("filter-location").value.trim();
+
+  if (hazardType) params.set("hazard_type", hazardType);
+  if (status) params.set("status", status);
+  if (severity) params.set("severity", severity);
+  if (dateFrom) params.set("date_from", dateFrom);
+  if (dateTo) params.set("date_to", dateTo);
+  if (location) params.set("location", location);
+
+  return params.toString();
+}
+
 async function loadReports() {
-  const statusFilter = document.getElementById("status-filter").value;
-  const url = statusFilter ? `${API_BASE}?status=${statusFilter}` : API_BASE;
+  const query = buildFilterQuery();
+  const url = query ? `${API_BASE}?${query}` : API_BASE;
 
   const res = await fetch(url);
   if (!res.ok) {
@@ -90,6 +110,37 @@ async function loadReports() {
   currentReports = await res.json();
   renderMarkers(currentReports);
   renderList(currentReports);
+
+  const countEl = document.getElementById("results-count");
+  if (countEl) {
+    countEl.textContent = `${currentReports.length} report${currentReports.length === 1 ? "" : "s"}`;
+  }
+}
+
+function initFilters() {
+  const ids = [
+    "filter-hazard-type",
+    "filter-status",
+    "filter-severity",
+    "filter-date-from",
+    "filter-date-to",
+  ];
+  ids.forEach((id) => {
+    document.getElementById(id).addEventListener("change", loadReports);
+  });
+
+  // Location is free text — debounce so we're not firing a request per keystroke.
+  let locationTimer;
+  document.getElementById("filter-location").addEventListener("input", () => {
+    clearTimeout(locationTimer);
+    locationTimer = setTimeout(loadReports, 350);
+  });
+
+  document.getElementById("filter-reset-btn").addEventListener("click", () => {
+    ids.forEach((id) => (document.getElementById(id).value = ""));
+    document.getElementById("filter-location").value = "";
+    loadReports();
+  });
 }
 
 function renderMarkers(reports) {
@@ -101,7 +152,7 @@ function renderMarkers(reports) {
       radius: 9,
       color: "#1c1f1e",
       weight: 1.5,
-      fillColor: colorForStatus(report.status),
+      fillColor: colorForMarker(report),
       fillOpacity: 0.9,
     }).addTo(map);
 
@@ -112,14 +163,22 @@ function renderMarkers(reports) {
 
 function popupHtml(report) {
   const media = report.media_url && isImageUrl(report.media_url)
-    ? `<img src="${report.media_url}" alt="Attached photo" style="width:100%;max-width:220px;border-radius:4px;margin-top:6px;display:block;" />`
+    ? `<img src="${report.media_url}" alt="Attached photo" style="width:100%;max-width:220px;border-radius:4px;margin-top:8px;display:block;" />`
     : "";
+  const location = report.location_address
+    ? escapeHtml(report.location_address)
+    : `${report.latitude.toFixed(5)}, ${report.longitude.toFixed(5)}`;
+
   return `
-    <strong>${escapeHtml(report.title)}</strong><br/>
-    ${HAZARD_LABELS[report.hazard_type]} · <em>${SEVERITY_LABELS[report.severity]}</em><br/>
-    ${escapeHtml(report.description)}<br/>
-    <em>${STATUS_LABELS[report.status]}</em>
-    ${media}
+    <div class="popup-card">
+      <strong class="popup-title">${escapeHtml(report.title)}</strong>
+      <p class="popup-row"><b>Location:</b> ${location}</p>
+      <p class="popup-row"><b>Reported:</b> ${formatDate(report.created_at)}</p>
+      <p class="popup-row"><b>Status:</b> ${STATUS_LABELS[report.status]}</p>
+      <p class="popup-row"><b>Severity:</b> ${SEVERITY_LABELS[report.severity]}</p>
+      <p class="popup-row popup-id"><b>Report ID:</b> #${formatReportId(report.id)}</p>
+      ${media}
+    </div>
   `;
 }
 
@@ -142,7 +201,7 @@ function renderList(reports) {
     li.innerHTML = `
       <div class="report-card-top">
         <span class="report-type">${HAZARD_LABELS[report.hazard_type]}</span>
-        <span class="report-id">#${String(report.id).padStart(4, "0")}</span>
+        <span class="report-id">#${formatReportId(report.id)}</span>
       </div>
       <p class="report-title">${escapeHtml(report.title)}</p>
       <p class="report-desc">${escapeHtml(report.description)}</p>
@@ -284,6 +343,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initAuthNav();
   initMap();
   initModal();
-  document.getElementById("status-filter").addEventListener("change", loadReports);
+  initFilters();
   loadReports();
 });

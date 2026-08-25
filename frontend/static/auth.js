@@ -38,11 +38,29 @@ const SEVERITY_LABELS = {
 };
 
 function colorForSeverity(severity) {
-  return { low: "#3f7d5c", medium: "#f4c20d", high: "#e2601c", critical: "#b3261e" }[severity];
+  return { low: "#3b82f6", medium: "#f4c20d", high: "#e2601c", critical: "#dc2626" }[severity];
 }
 
 function colorForStatus(status) {
   return { reported: "#e2601c", in_progress: "#f4c20d", resolved: "#3f7d5c" }[status];
+}
+
+function colorForMarker(report) {
+  if (report.status === "resolved") return "#3f7d5c";
+  return colorForSeverity(report.severity);
+}
+
+function formatReportId(id) {
+  return `HZ${String(id).padStart(4, "0")}`;
+}
+
+function formatDate(isoString) {
+  if (!isoString) return "—";
+  return new Date(isoString).toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function escapeHtml(str) {
