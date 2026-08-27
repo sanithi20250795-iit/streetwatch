@@ -37,6 +37,7 @@ class Severity(str, Enum):
 
 class HazardStatus(str, Enum):
     reported = "reported"
+    verified = "verified"
     in_progress = "in_progress"
     resolved = "resolved"
 

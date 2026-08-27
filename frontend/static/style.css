@@ -449,3 +449,5 @@ body {
 .popup-title { display: block; font-size: 14px; margin-bottom: 6px; }
 .popup-row { margin: 2px 0; font-size: 12px; line-height: 1.4; }
 .popup-id { color: var(--ink-soft); font-family: var(--font-mono); font-size: 11px; }
+
+.status-pill.verified { background: #3b82f6; color: var(--paper); }

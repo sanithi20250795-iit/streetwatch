@@ -62,3 +62,7 @@ def serve_map():
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+@app.get("/track")
+def serve_track():
+    return FileResponse("frontend/track.html")

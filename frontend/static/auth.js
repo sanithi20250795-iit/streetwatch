@@ -12,6 +12,7 @@
 // (homepage) so hazard/status labels and colors never drift apart.
 const STATUS_LABELS = {
   reported: "Reported",
+  verified: "Verified",
   in_progress: "In progress",
   resolved: "Resolved",
 };
@@ -42,7 +43,7 @@ function colorForSeverity(severity) {
 }
 
 function colorForStatus(status) {
-  return { reported: "#e2601c", in_progress: "#f4c20d", resolved: "#3f7d5c" }[status];
+  return { reported: "#e2601c", verified: "#3b82f6", in_progress: "#f4c20d", resolved: "#3f7d5c" }[status];
 }
 
 function colorForMarker(report) {

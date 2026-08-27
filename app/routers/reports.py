@@ -10,6 +10,7 @@ brief asks for:
 import os
 import shutil
 import uuid
+from app.models.status_history import StatusHistory
 from datetime import date, datetime, timezone
 from typing import List, Optional
 
@@ -90,6 +91,13 @@ async def create_report(
     session.add(report)
     session.commit()
     session.refresh(report)
+        # Log the first stage of the lifecycle so the track-by-ID page has a
+    # starting point even before any status change happens.
+    session.add(StatusHistory(report_id=report.id, status=HazardStatus.reported, changed_at=report.created_at))
+    session.commit()
+    # committing above expires `report`'s attributes (SQLAlchemy's default
+    # expire_on_commit) — refresh it again so the response actually has data.
+    session.refresh(report)
     return report
 
 
@@ -147,6 +155,7 @@ def get_stats(session: Session = Depends(get_session)):
         "in_progress": sum(1 for r in reports if r.status == "in_progress"),
         "resolved": sum(1 for r in reports if r.status == "resolved"),
         "by_type": by_type,
+        "verified": sum(1 for r in reports if r.status == "verified"),
     }
 
 
@@ -156,6 +165,21 @@ def get_report(report_id: int, session: Session = Depends(get_session)):
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
     return report
+
+@router.get("/{report_id}/history", response_model=List[StatusHistory])
+def get_report_history(report_id: int, session: Session = Depends(get_session)):
+    """The dated timeline for the track-by-ID page. Public — no login
+    required, since anyone with a Report ID should be able to check on it."""
+    report = session.get(HazardReport, report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    statement = (
+        select(StatusHistory)
+        .where(StatusHistory.report_id == report_id)
+        .order_by(StatusHistory.changed_at)
+    )
+    return session.exec(statement).all()
 
 
 @router.patch("/{report_id}", response_model=HazardReport)
@@ -172,6 +196,8 @@ def update_report_status(
         raise HTTPException(status_code=404, detail="Report not found")
 
     report.status = update.status
+        # Log this transition so it shows up on the track-by-ID timeline.
+    session.add(StatusHistory(report_id=report.id, status=update.status))
     report.updated_at = datetime.now(timezone.utc)
     session.add(report)
     session.commit()

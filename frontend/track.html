@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track a Report — Streetwatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/home.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="/" class="brand" style="text-decoration:none; color:inherit;">
+      <span class="brand-mark">⚠</span>
+      <div>
+        <h1>STREETWATCH</h1>
+        <p class="brand-sub">Community infrastructure hazard log — SDG 11</p>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="/map" class="btn-ghost">View Map</a>
+      <span id="user-greeting" class="user-greeting hidden"></span>
+      <button id="logout-btn" class="btn-ghost hidden">Log out</button>
+    </div>
+  </header>
+
+  <main class="track-page">
+    <div class="track-search-card">
+      <h2>Track a report</h2>
+      <p class="track-search-sub">Enter your Report ID to see its current status.</p>
+      <form id="track-form" class="track-form">
+        <input type="text" id="track-input" placeholder="e.g. HZ1024" required>
+        <button type="submit" class="btn-primary">Track</button>
+      </form>
+    </div>
+
+    <div id="track-result"></div>
+  </main>
+
+<script src="/static/auth.js"></script>
+<script src="/static/track.js"></script>
+</body>
+</html>
