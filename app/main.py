@@ -66,3 +66,7 @@ def health_check():
 @app.get("/track")
 def serve_track():
     return FileResponse("frontend/track.html")
+
+@app.get("/my-reports")
+def serve_my_reports():
+    return FileResponse("frontend/my-reports.html")

@@ -58,6 +58,7 @@ class HazardReportBase(SQLModel):
 class HazardReport(HazardReportBase, table=True):
     """The actual DB table. Extra fields beyond what a client submits."""
     id: Optional[int] = Field(default=None, primary_key=True)
+    reporter_id: Optional[int] = Field(default=None, foreign_key="user.id", index=True)
     status: HazardStatus = Field(default=HazardStatus.reported)
     media_url: Optional[str] = Field(default=None)  # path to uploaded photo/video
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -67,3 +68,14 @@ class HazardReport(HazardReportBase, table=True):
 class HazardReportStatusUpdate(SQLModel):
     """Shape of the JSON body clients send when updating status."""
     status: HazardStatus
+
+class HazardReportEdit(SQLModel):
+    """Fields the report's owner can change, before it's been verified.
+    Everything optional — the client only sends what changed."""
+    hazard_type: Optional[HazardType] = None
+    title: Optional[str] = Field(default=None, min_length=3, max_length=120)
+    description: Optional[str] = Field(default=None, min_length=5, max_length=500)
+    location_address: Optional[str] = Field(default=None, max_length=255)
+    severity: Optional[Severity] = None
+    occurred_at: Optional[datetime] = None
+    contact_info: Optional[str] = Field(default=None, max_length=150)

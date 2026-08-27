@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Reports — Streetwatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/home.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="/" class="brand" style="text-decoration:none; color:inherit;">
+      <span class="brand-mark">⚠</span>
+      <div>
+        <h1>STREETWATCH</h1>
+        <p class="brand-sub">Community infrastructure hazard log — SDG 11</p>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="/map" class="btn-ghost">View Map</a>
+      <a href="/track" class="btn-ghost">Track a Report</a>
+      <span id="user-greeting" class="user-greeting hidden"></span>
+      <button id="logout-btn" class="btn-ghost hidden">Log out</button>
+    </div>
+  </header>
+
+  <main class="my-reports-page">
+    <div class="my-reports-head">
+      <h2>My Reports</h2>
+      <p class="my-reports-sub">Reports you've filed, and where each one stands.</p>
+    </div>
+    <ul id="my-reports-list" class="my-reports-list">
+      <li class="empty-state">Loading your reports…</li>
+    </ul>
+  </main>
+
+  <!-- Edit modal -->
+  <div id="edit-modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>Edit report</h2>
+        <button id="close-edit-modal" class="btn-icon">✕</button>
+      </div>
+      <form id="edit-form">
+        <input type="hidden" name="report_id">
+        <label>
+          Hazard category
+          <select name="hazard_type" required>
+            <option value="pothole">🕳️ Pothole</option>
+            <option value="broken_streetlight">💡 Broken streetlight</option>
+            <option value="damaged_road">🛣️ Damaged/unsafe road</option>
+            <option value="flooding">🌊 Flooding</option>
+            <option value="broken_traffic_signal">🚦 Broken traffic signal</option>
+            <option value="illegal_dumping">🗑️ Waste / illegal dumping</option>
+            <option value="water_leakage">🚰 Water leakage</option>
+            <option value="unsafe_infrastructure">🏗️ Unsafe infrastructure</option>
+            <option value="fallen_tree">🌳 Fallen tree</option>
+            <option value="electrical_hazard">⚡ Electrical hazard</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label>
+          Title
+          <input type="text" name="title" required minlength="3" maxlength="120">
+        </label>
+        <label>
+          Description
+          <textarea name="description" required minlength="5" maxlength="500"></textarea>
+        </label>
+        <label>
+          Severity
+          <select name="severity" required>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </label>
+        <label>
+          Location / address <span class="optional">(optional)</span>
+          <input type="text" name="location_address" maxlength="255">
+        </label>
+        <label>
+          Contact details <span class="optional">(optional)</span>
+          <input type="text" name="contact_info" maxlength="150">
+        </label>
+        <p id="edit-error" class="form-error hidden"></p>
+        <button type="submit" class="btn-primary full-width">Save changes</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Feedback modal -->
+  <div id="feedback-modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>How did the fix go?</h2>
+        <button id="close-feedback-modal" class="btn-icon">✕</button>
+      </div>
+      <form id="feedback-form">
+        <input type="hidden" name="report_id">
+        <label>
+          Rating
+          <select name="rating" required>
+            <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+            <option value="4">⭐⭐⭐⭐ Good</option>
+            <option value="3">⭐⭐⭐ Okay</option>
+            <option value="2">⭐⭐ Poor</option>
+            <option value="1">⭐ Not fixed properly</option>
+          </select>
+        </label>
+        <label>
+          Comment <span class="optional">(optional)</span>
+          <textarea name="comment" maxlength="500" placeholder="Anything worth mentioning?"></textarea>
+        </label>
+        <p id="feedback-error" class="form-error hidden"></p>
+        <button type="submit" class="btn-primary full-width">Submit feedback</button>
+      </form>
+    </div>
+  </div>
+
+<script src="/static/auth.js"></script>
+<script src="/static/my-reports.js"></script>
+</body>
+</html>

@@ -19,8 +19,10 @@ from sqlmodel import Session, select
 
 from app.auth import get_current_user
 from app.database import get_session
+from app.models.feedback import ReportFeedback, ReportFeedbackCreate
 from app.models.hazard import (
     HazardReport,
+    HazardReportEdit,
     HazardReportStatusUpdate,
     HazardStatus,
     HazardType,
@@ -85,6 +87,7 @@ async def create_report(
         severity=severity,
         occurred_at=occurred_at,
         contact_info=contact_info,
+        reporter_id=current_user.id,
         reporter_name=current_user.name,
         media_url=media_url,
     )
@@ -158,6 +161,23 @@ def get_stats(session: Session = Depends(get_session)):
         "verified": sum(1 for r in reports if r.status == "verified"),
     }
 
+@router.get("/mine", response_model=List[HazardReport])
+def list_my_reports(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    """The logged-in user's own reports, for the 'My Reports' dashboard.
+
+    IMPORTANT: like '/stats', this must be declared BEFORE '/{report_id}' —
+    otherwise FastAPI tries to parse 'mine' as the int report_id and fails.
+    """
+    statement = (
+        select(HazardReport)
+        .where(HazardReport.reporter_id == current_user.id)
+        .order_by(HazardReport.created_at.desc())
+    )
+    return session.exec(statement).all()
+
 
 @router.get("/{report_id}", response_model=HazardReport)
 def get_report(report_id: int, session: Session = Depends(get_session)):
@@ -204,6 +224,75 @@ def update_report_status(
     session.refresh(report)
     return report
 
+@router.put("/{report_id}/edit", response_model=HazardReport)
+def edit_report(
+    report_id: int,
+    edit: HazardReportEdit,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    """Let the report's owner correct details — only while it's still in
+    the 'reported' stage."""
+    report = session.get(HazardReport, report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    if report.reporter_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only edit your own reports")
+    if report.status != HazardStatus.reported:
+        raise HTTPException(status_code=400, detail="This report can no longer be edited — it's already been verified")
+
+    update_data = edit.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(report, field, value)
+    report.updated_at = datetime.now(timezone.utc)
+
+    session.add(report)
+    session.commit()
+    session.refresh(report)
+    return report
+
+
+@router.post("/{report_id}/feedback", response_model=ReportFeedback, status_code=201)
+def submit_feedback(
+    report_id: int,
+    feedback_in: ReportFeedbackCreate,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    """Let the report's owner rate how the resolution went — only once,
+    and only after the report is actually resolved."""
+    report = session.get(HazardReport, report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    if report.reporter_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only leave feedback on your own reports")
+    if report.status != HazardStatus.resolved:
+        raise HTTPException(status_code=400, detail="Feedback can only be left once a report is resolved")
+
+    existing = session.exec(
+        select(ReportFeedback).where(ReportFeedback.report_id == report_id)
+    ).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Feedback has already been submitted for this report")
+
+    feedback = ReportFeedback(
+        report_id=report_id,
+        user_id=current_user.id,
+        rating=feedback_in.rating,
+        comment=feedback_in.comment,
+    )
+    session.add(feedback)
+    session.commit()
+    session.refresh(feedback)
+    return feedback
+
+
+@router.get("/{report_id}/feedback", response_model=Optional[ReportFeedback])
+def get_feedback(report_id: int, session: Session = Depends(get_session)):
+    """Public — shown once feedback exists."""
+    return session.exec(
+        select(ReportFeedback).where(ReportFeedback.report_id == report_id)
+    ).first()
 
 @router.delete("/{report_id}", status_code=204)
 def delete_report(report_id: int, session: Session = Depends(get_session)):

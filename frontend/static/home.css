@@ -555,3 +555,78 @@
   font-size: 12px;
   color: var(--ink-soft);
 }
+
+/* ---------- My Reports dashboard ---------- */
+.my-reports-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.my-reports-head { margin-bottom: 24px; }
+
+.my-reports-head h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  margin: 0 0 6px;
+}
+
+.my-reports-sub {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.my-reports-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.my-report-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--status-reported);
+  border-radius: 6px;
+  padding: 16px 18px;
+  cursor: default;
+}
+.my-report-card.status-verified { border-left-color: #3b82f6; }
+.my-report-card.status-in_progress { border-left-color: var(--status-progress); }
+.my-report-card.status-resolved { border-left-color: var(--status-resolved); }
+
+.my-report-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin: 2px 0 10px;
+}
+
+.my-report-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.badge-updated {
+  display: inline-block;
+  background: var(--safety-orange);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.feedback-done {
+  font-size: 12px;
+  color: var(--status-resolved);
+  font-weight: 600;
+  align-self: center;
+}
