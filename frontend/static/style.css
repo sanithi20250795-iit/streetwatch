@@ -213,7 +213,7 @@ body {
 .severity-pill.severity-low { background: var(--status-resolved); }
 .severity-pill.severity-medium { background: var(--status-progress); color: var(--asphalt); }
 .severity-pill.severity-high { background: var(--status-reported); }
-.severity-pill.severity-critical { background: #dc2626; }
+.severity-pill.severity-critical { background: #b3261e; }
 
 .status-select {
   font-family: var(--font-mono);
