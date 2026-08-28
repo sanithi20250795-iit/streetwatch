@@ -29,7 +29,7 @@ sessions rather than a decorative login form.
 
 ## Project structure
 
-```
+
 hazard-report-app/
 ├── app/
 │   ├── main.py              # FastAPI app, mounts frontend + routes
@@ -53,7 +53,6 @@ hazard-report-app/
 │       └── login-page.js    # login/register form logic
 ├── requirements.txt
 └── README.md
-```
 
 ## Setup
 
