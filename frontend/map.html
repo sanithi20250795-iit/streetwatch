@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streetwatch — Community Hazard Reports</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="/" class="brand" style="text-decoration:none; color:inherit;">
+      <span class="brand-mark">⚠</span>
+      <div>
+        <h1>STREETWATCH</h1>
+        <p class="brand-sub">Community infrastructure hazard log — SDG 11</p>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <span id="user-greeting" class="user-greeting hidden"></span>
+      <button id="logout-btn" class="btn-ghost hidden">Log out</button>
+      <button id="new-report-btn" class="btn-primary">+ Report a Hazard</button>
+      <a href="/track" class="btn-ghost">Track a Report</a>
+      <a href="/my-reports" id="my-reports-link" class="btn-ghost hidden">My Reports</a>
+    </div>
+  </header>
+
+  <!-- Filters -->
+  <section class="filters-bar">
+    <div class="filter-field">
+      <label for="filter-hazard-type">Hazard type</label>
+      <select id="filter-hazard-type">
+        <option value="">All types</option>
+        <option value="pothole">🕳️ Pothole</option>
+        <option value="broken_streetlight">💡 Broken streetlight</option>
+        <option value="damaged_road">🛣️ Damaged/unsafe road</option>
+        <option value="flooding">🌊 Flooding</option>
+        <option value="broken_traffic_signal">🚦 Broken traffic signal</option>
+        <option value="illegal_dumping">🗑️ Waste / illegal dumping</option>
+        <option value="water_leakage">🚰 Water leakage</option>
+        <option value="unsafe_infrastructure">🏗️ Unsafe infrastructure</option>
+        <option value="fallen_tree">🌳 Fallen tree</option>
+        <option value="electrical_hazard">⚡ Electrical hazard</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label for="filter-status">Status</label>
+      <select id="filter-status">
+        <option value="">All statuses</option>
+        <option value="reported">Reported</option>
+        <option value="verified">Verified</option>
+        <option value="in_progress">In progress</option>
+        <option value="resolved">Resolved</option>
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label for="filter-severity">Severity</label>
+      <select id="filter-severity">
+        <option value="">All severities</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+        <option value="critical">Critical</option>
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label for="filter-date-from">From</label>
+      <input type="date" id="filter-date-from">
+    </div>
+
+    <div class="filter-field">
+      <label for="filter-date-to">To</label>
+      <input type="date" id="filter-date-to">
+    </div>
+
+    <div class="filter-field filter-field-grow">
+      <label for="filter-location">Location / area</label>
+      <input type="text" id="filter-location" placeholder="Search by area, road, landmark…">
+    </div>
+
+    <button id="filter-reset-btn" class="btn-ghost-small" type="button">Reset filters</button>
+  </section>
+
+  <main class="layout">
+    <section class="map-panel">
+      <div id="map"></div>
+      <div class="map-legend">
+        <p class="legend-title">Marker color</p>
+        <div class="legend-item"><span class="legend-dot" style="background:#dc2626"></span> Critical</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#e2601c"></span> High</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#f4c20d"></span> Medium</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span> Low</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#3f7d5c"></span> Resolved</div>
+      </div>
+    </section>
+
+    <aside class="list-panel">
+      <div class="list-header">
+        <h2>Open Log</h2>
+        <span id="results-count" class="results-count"></span>
+      </div>
+      <ul id="report-list" class="report-list"></ul>
+    </aside>
+  </main>
+
+  <!-- New report modal -->
+  <div id="report-modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>File a hazard report</h2>
+        <button id="close-modal" class="btn-icon">✕</button>
+      </div>
+      <form id="report-form">
+        <label>
+          Hazard category
+          <select name="hazard_type" required>
+            <option value="pothole">🕳️ Pothole</option>
+            <option value="broken_streetlight">💡 Broken streetlight</option>
+            <option value="damaged_road">🛣️ Damaged/unsafe road</option>
+            <option value="flooding">🌊 Flooding</option>
+            <option value="broken_traffic_signal">🚦 Broken traffic signal</option>
+            <option value="illegal_dumping">🗑️ Waste / illegal dumping</option>
+            <option value="water_leakage">🚰 Water leakage</option>
+            <option value="unsafe_infrastructure">🏗️ Unsafe infrastructure</option>
+            <option value="fallen_tree">🌳 Fallen tree</option>
+            <option value="electrical_hazard">⚡ Electrical hazard</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+
+        <label>
+          Title
+          <input type="text" name="title" required minlength="3" maxlength="120"
+            placeholder="Short summary, e.g. 'Pothole blocking left lane'">
+        </label>
+
+        <label>
+          Description
+          <textarea name="description" required minlength="5" maxlength="500"
+            placeholder="What's the issue, and how urgent is it?"></textarea>
+        </label>
+
+        <label>
+          Severity
+          <select name="severity" required>
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </label>
+
+        <label>
+          Location / address <span class="optional">(optional)</span>
+          <input type="text" name="location_address" maxlength="255"
+            placeholder="e.g. Galle Road, near the bridge">
+        </label>
+
+        <label>
+          When did you notice it? <span class="optional">(optional)</span>
+          <input type="datetime-local" name="occurred_at">
+        </label>
+
+        <label>
+          Photo or video <span class="optional">(optional)</span>
+          <input type="file" name="photo" accept="image/*,video/*">
+        </label>
+
+        <label>
+          Contact details <span class="optional">(optional)</span>
+          <input type="text" name="contact_info" maxlength="150"
+            placeholder="Phone or email, if you're open to follow-up">
+        </label>
+
+        <div class="location-field">
+          <div class="location-field-head">
+            <p class="ticket-note">Click a point on the map to drop your pin, or:</p>
+            <button type="button" id="use-my-location-btn" class="btn-locate">📍 Use My Location</button>
+          </div>
+          <p id="picked-coords" class="coords-readout">No location selected yet</p>
+        </div>
+
+        <input type="hidden" name="latitude">
+        <input type="hidden" name="longitude">
+
+        <button type="submit" class="btn-primary full-width">Submit Report</button>
+      </form>
+    </div>
+  </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/auth.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

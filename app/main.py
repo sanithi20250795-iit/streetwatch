@@ -1,0 +1,72 @@
+"""
+Entry point for the Hazard Reporting API.
+
+Run locally with:
+    uvicorn app.main:app --reload
+
+Then visit:
+    http://127.0.0.1:8000/          -> the frontend map/report page
+    http://127.0.0.1:8000/docs      -> interactive Swagger API docs
+"""
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+from app.database import init_db
+from app.routers import auth, reports
+
+app = FastAPI(
+    title="Community Hazard Reporter",
+    description="Crowdsourced local hazard reporting for SDG 11 — Sustainable Cities and Communities.",
+    version="0.1.0",
+)
+
+# Allow the frontend (served separately during dev, e.g. via VS Code Live Server)
+# to call this API. Tighten this to your actual frontend origin before deploying.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.on_event("startup")
+def on_startup():
+    init_db()
+
+
+app.include_router(auth.router)
+app.include_router(reports.router)
+
+# Serve the frontend directly from FastAPI so the whole app runs from one server.
+app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
+
+
+@app.get("/")
+def serve_home():
+    return FileResponse("frontend/home.html")
+
+
+@app.get("/login")
+def serve_login():
+    return FileResponse("frontend/login.html")
+
+
+@app.get("/map")
+def serve_map():
+    return FileResponse("frontend/map.html")
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
+@app.get("/track")
+def serve_track():
+    return FileResponse("frontend/track.html")
+
+@app.get("/my-reports")
+def serve_my_reports():
+    return FileResponse("frontend/my-reports.html")
