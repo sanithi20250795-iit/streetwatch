@@ -32,9 +32,7 @@ from app.models.user import User
 
 router = APIRouter(prefix="/api/reports", tags=["reports"])
 
-# Uploaded photos/videos are saved inside frontend/static/uploads, which
-# main.py already mounts at /static — so a saved file is reachable at
-# /static/uploads/<filename> with no extra mounting needed.
+
 UPLOAD_DIR = "frontend/static/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
