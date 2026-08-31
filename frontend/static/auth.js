@@ -96,6 +96,11 @@ function isLoggedIn() {
   return !!getToken();
 }
 
+function isAdmin() {
+  const user = getStoredUser();
+  return !!(user && user.is_admin);
+}
+
 /** Adds the Authorization header to a fetch options object, if logged in. */
 function withAuthHeader(options = {}) {
   const token = getToken();

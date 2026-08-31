@@ -1,0 +1,127 @@
+.admin-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 30px 24px 80px;
+}
+
+.admin-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+  gap: 4px;
+}
+
+.admin-tab {
+  background: none;
+  border: none;
+  padding: 12px 18px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+.admin-tab.active {
+  color: var(--ink);
+  border-bottom-color: var(--safety-orange);
+}
+
+.preset-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.preset-btn {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.preset-btn:hover { background: var(--paper); }
+.preset-btn.active {
+  background: var(--asphalt);
+  border-color: var(--asphalt);
+  color: var(--safety-yellow);
+}
+
+.admin-table-wrap {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.admin-table th {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--ink-soft);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td { border-bottom: none; }
+
+.admin-row { cursor: pointer; }
+.admin-row:hover { background: var(--paper); }
+
+.admin-table .mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.manage-summary {
+  background: var(--paper);
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+#manage-form select,
+#manage-form input[type="text"],
+#manage-form input[type="file"],
+#manage-form textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  background: var(--paper);
+}
+#manage-form label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--ink-soft);
+  margin-top: 14px;
+}
+#manage-form textarea { min-height: 70px; resize: vertical; }
