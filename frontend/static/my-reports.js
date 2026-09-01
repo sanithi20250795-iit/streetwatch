@@ -45,6 +45,13 @@ async function loadMyReports() {
 
   if (myReports.length === 0) {
     list.innerHTML = `<li class="empty-state">You haven't filed any reports yet — <a href="/map">go report one</a>.</li>`;
+    renderNotificationsPanel([]);
+    return;
+  }
+  renderNotificationsPanel(myReports.filter(hasUnseenUpdate));
+
+  if (myReports.length === 0) {
+    list.innerHTML = `<li class="empty-state">You haven't filed any reports yet — <a href="/map">go report one</a>.</li>`;
     return;
   }
 
@@ -84,7 +91,7 @@ async function loadMyReports() {
             <span class="report-id">#${formatReportId(r.id)}</span>
           </div>
           <p class="report-title">${escapeHtml(r.title)}
-            ${unseen ? '<span class="badge-updated">Updated</span>' : ""}
+            ${unseen ? `<span class="badge-updated">🔔 Now: ${STATUS_LABELS[r.status] || r.status}</span>` : ""}
           </p>
           <p class="report-desc">${escapeHtml(r.description)}</p>
           <p class="my-report-date">Filed ${formatDate(r.created_at)}</p>
@@ -229,6 +236,31 @@ function initFeedbackModal() {
     modal.classList.add("hidden");
     await loadMyReports();
   });
+}
+
+const STATUS_CHANGE_MESSAGES = {
+  verified: "has been verified",
+  in_progress: "is now being worked on",
+  resolved: "has been resolved",
+  rejected: "was not accepted — see the report for details",
+  reported: "was filed",
+};
+
+function renderNotificationsPanel(unseenReports) {
+  const panel = document.getElementById("notifications-panel");
+  if (!panel) return;
+  if (unseenReports.length === 0) {
+    panel.classList.add("hidden");
+    panel.innerHTML = "";
+    return;
+  }
+  panel.innerHTML = unseenReports
+    .map((r) => {
+      const message = STATUS_CHANGE_MESSAGES[r.status] || `is now: ${STATUS_LABELS[r.status]}`;
+      return `<p class="notification-line">🔔 Your report <strong>#${formatReportId(r.id)}</strong> (${escapeHtml(r.title)}) ${message}.</p>`;
+    })
+    .join("");
+  panel.classList.remove("hidden");
 }
 
 // ---------- Bootstrap ----------
