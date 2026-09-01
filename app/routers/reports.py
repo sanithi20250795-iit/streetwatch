@@ -110,6 +110,7 @@ def list_reports(
     date_from: Optional[date] = Query(default=None, description="Only reports created on/after this date"),
     date_to: Optional[date] = Query(default=None, description="Only reports created on/before this date"),
     location: Optional[str] = Query(default=None, description="Case-insensitive search within the location/address text"),
+    unresolved: bool = Query(default=False, description="Only reports not yet resolved (excludes rejected too)"),
     limit: Optional[int] = Query(default=None, description="Max number of reports to return"),
     session: Session = Depends(get_session),
 ):
@@ -132,6 +133,9 @@ def list_reports(
     statement = statement.order_by(HazardReport.created_at.desc())
     if limit:
         statement = statement.limit(limit)
+    if unresolved:
+        statement = statement.where(HazardReport.status.notin_([HazardStatus.resolved, HazardStatus.rejected]))
+
     return session.exec(statement).all()
 
 

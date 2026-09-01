@@ -92,9 +92,45 @@ async function initPreviewMap() {
   }
 }
 
+async function loadEmergencyAlerts() {
+  const section = document.getElementById("emergency-section");
+  const list = document.getElementById("emergency-list");
+
+  try {
+    const res = await fetch("/api/reports?severity=critical&unresolved=true");
+    if (!res.ok) return;
+    const reports = await res.json();
+
+    if (reports.length === 0) {
+      section.classList.add("hidden");
+      return;
+    }
+
+    list.innerHTML = reports
+      .map(
+        (r) => `
+      <a href="/map" class="emergency-card">
+        <div class="emergency-card-top">
+          <span class="emergency-badge">CRITICAL HAZARD</span>
+          <span class="emergency-time">🕐 Reported ${formatRelativeTime(r.created_at)}</span>
+        </div>
+        <p class="emergency-title">${HAZARD_LABELS[r.hazard_type]}: ${escapeHtml(r.title)}</p>
+        <p class="emergency-location">📍 ${r.location_address ? escapeHtml(r.location_address) : `${r.latitude.toFixed(4)}, ${r.longitude.toFixed(4)}`}</p>
+      </a>
+    `
+      )
+      .join("");
+
+    section.classList.remove("hidden");
+  } catch (err) {
+    console.error("Failed to load emergency alerts", err);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initAuthNav();
   loadStats();
   loadRecentReports();
   initPreviewMap();
+  loadEmergencyAlerts();
 });
