@@ -16,6 +16,8 @@ class UserBase(SQLModel):
 class User(UserBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     hashed_password: str
+    is_admin: bool = Field(default=False)
+    is_active: bool = Field(default=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -31,11 +33,21 @@ class UserLogin(SQLModel):
 
 
 class UserRead(UserBase):
-    """Shape of the user data returned to clients — no password fields."""
+    """Shape of the user data returned to clients — no password fields.
+    is_admin is included (but never settable by the client) so the
+    frontend knows whether to show the Admin nav link."""
     id: int
+    is_admin: bool
+    is_active: bool
 
 
 class Token(SQLModel):
     access_token: str
     token_type: str = "bearer"
     user: UserRead
+
+
+class AdminUserUpdate(SQLModel):
+    """Shape of the JSON body an admin sends to activate/deactivate an
+    account."""
+    is_active: bool

@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from app.database import init_db
-from app.routers import auth, reports
+from app.routers import admin, auth, reports
 
 app = FastAPI(
     title="Community Hazard Reporter",
@@ -22,8 +22,6 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Allow the frontend (served separately during dev, e.g. via VS Code Live Server)
-# to call this API. Tighten this to your actual frontend origin before deploying.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -39,8 +37,8 @@ def on_startup():
 
 app.include_router(auth.router)
 app.include_router(reports.router)
+app.include_router(admin.router)
 
-# Serve the frontend directly from FastAPI so the whole app runs from one server.
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
 
 
@@ -63,10 +61,17 @@ def serve_map():
 def health_check():
     return {"status": "ok"}
 
+
 @app.get("/track")
 def serve_track():
     return FileResponse("frontend/track.html")
 
+
 @app.get("/my-reports")
 def serve_my_reports():
     return FileResponse("frontend/my-reports.html")
+
+
+@app.get("/admin")
+def serve_admin():
+    return FileResponse("frontend/admin.html")

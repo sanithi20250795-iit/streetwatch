@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — Streetwatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/home.css">
+<link rel="stylesheet" href="/static/admin.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="/" class="brand" style="text-decoration:none; color:inherit;">
+      <span class="brand-mark">⚠</span>
+      <div>
+        <h1>STREETWATCH</h1>
+        <p class="brand-sub">Authority Dashboard</p>
+      </div>
+    </a>
+    <div class="nav-actions">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/map" class="nav-link">View Map</a>
+        <a href="/track" class="nav-link">Track a Report</a>
+        <a href="/my-reports" id="my-reports-link" class="nav-link hidden">My Reports</a>
+        <a href="/admin" id="admin-link" class="nav-link hidden">Admin</a>
+        <span id="user-greeting" class="user-greeting hidden"></span>
+        <button id="logout-btn" class="btn-ghost hidden">Log out</button>
+        <a id="nav-login-btn" href="/login" class="btn-primary">Log in</a>
+    </div>
+  </header>
+
+  <main class="admin-page">
+    <div id="admin-guard" class="hidden">
+      <p class="empty-state">This dashboard is only available to admin accounts.</p>
+    </div>
+
+    <div id="admin-content">
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="reports">Reports</button>
+        <button class="admin-tab" data-tab="users">Users</button>
+        <button class="admin-tab" data-tab="analytics">Analytics</button>
+      </div>
+
+      <!-- ---------------- Reports tab ---------------- -->
+      <section id="admin-reports-tab" class="admin-tab-panel">
+        <div class="preset-bar">
+          <button class="preset-btn active" data-preset="all">All</button>
+          <button class="preset-btn" data-preset="new">New</button>
+          <button class="preset-btn" data-preset="high_priority">High Priority</button>
+          <button class="preset-btn" data-preset="unresolved">Unresolved</button>
+          <button class="preset-btn" data-preset="resolved">Resolved</button>
+        </div>
+
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Department</th>
+                <th>Reported</th>
+              </tr>
+            </thead>
+            <tbody id="admin-reports-body">
+              <tr><td colspan="7" class="empty-state">Loading reports…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------------- Users tab ---------------- -->
+      <section id="admin-users-tab" class="admin-tab-panel hidden">
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-body">
+              <tr><td colspan="5" class="empty-state">Loading users…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------------- Analytics tab ---------------- -->
+      <section id="admin-analytics-tab" class="admin-tab-panel hidden">
+        <div class="analytics-stats-row">
+          <div class="analytics-stat">
+            <span class="stat-number" id="an-total">—</span>
+            <span class="stat-label">Total Reports</span>
+          </div>
+          <div class="analytics-stat">
+            <span class="stat-number" id="an-resolved">—</span>
+            <span class="stat-label">Resolved</span>
+          </div>
+          <div class="analytics-stat">
+            <span class="stat-number" id="an-unresolved">—</span>
+            <span class="stat-label">Unresolved</span>
+          </div>
+          <div class="analytics-stat">
+            <span class="stat-number" id="an-avg-time">—</span>
+            <span class="stat-label">Avg Resolution (hrs)</span>
+          </div>
+          <div class="analytics-stat">
+            <span class="stat-number" id="an-common-hazard">—</span>
+            <span class="stat-label">Most Common Hazard</span>
+          </div>
+        </div>
+
+        <div class="analytics-charts-grid">
+          <div class="analytics-chart-card">
+            <h4>Reports per month</h4>
+            <canvas id="chart-per-month"></canvas>
+          </div>
+          <div class="analytics-chart-card">
+            <h4>Severity distribution</h4>
+            <canvas id="chart-severity"></canvas>
+          </div>
+        </div>
+
+        <div class="analytics-chart-card analytics-full-width">
+          <h4>Top 5 problem areas</h4>
+          <canvas id="chart-areas"></canvas>
+        </div>
+
+        <div class="analytics-chart-card analytics-full-width">
+          <h4>Department performance</h4>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Department</th>
+                  <th>Assigned</th>
+                  <th>Resolved</th>
+                  <th>Avg Resolution (hrs)</th>
+                </tr>
+              </thead>
+              <tbody id="dept-performance-body">
+                <tr><td colspan="4" class="empty-state">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Manage report modal -->
+  <div id="manage-modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="manage-modal-title">Manage report</h2>
+        <button id="close-manage-modal" class="btn-icon">✕</button>
+      </div>
+
+      <div id="manage-report-summary" class="manage-summary"></div>
+
+      <form id="manage-form">
+        <input type="hidden" name="report_id">
+        <label>
+          Status
+          <select name="status">
+            <option value="reported">Reported</option>
+            <option value="verified">Verified</option>
+            <option value="in_progress">In progress</option>
+            <option value="resolved">Resolved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </label>
+        <label>
+          Severity / priority
+          <select name="severity">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </label>
+        <label>
+          Assign to department <span class="optional">(optional)</span>
+          <input type="text" name="assigned_department" placeholder="e.g. Roads &amp; Drainage">
+        </label>
+        <label>
+          Internal notes <span class="optional">(optional, not shown to the public)</span>
+          <textarea name="admin_notes" placeholder="Site visit notes, contractor info, etc."></textarea>
+        </label>
+        <label>
+          Resolution evidence <span class="optional">(optional photo/video)</span>
+          <input type="file" name="resolution_photo" accept="image/*,video/*">
+        </label>
+        <p id="manage-error" class="form-error hidden"></p>
+        <button type="submit" class="btn-primary full-width">Save changes</button>
+      </form>
+    </div>
+  </div>
+
+<script src="/static/auth.js"></script>
+<script src="/static/admin.js"></script>
+</body>
+</html>

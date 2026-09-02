@@ -451,3 +451,15 @@ body {
 .popup-id { color: var(--ink-soft); font-family: var(--font-mono); font-size: 11px; }
 
 .status-pill.verified { background: #3b82f6; color: var(--paper); }
+
+.nav-link {
+  color: var(--paper);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  opacity: 0.85;
+}
+.nav-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}

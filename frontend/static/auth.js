@@ -135,6 +135,7 @@ function initAuthNav() {
   const logoutBtn = document.getElementById("logout-btn");
   const loginBtn = document.getElementById("nav-login-btn");
   const myReportsLink = document.getElementById("my-reports-link");
+  const adminLink = document.getElementById("admin-link");
   if (!greeting || !logoutBtn) return;
 
   const user = getStoredUser();
@@ -144,6 +145,7 @@ function initAuthNav() {
     logoutBtn.classList.remove("hidden");
     if (loginBtn) loginBtn.classList.add("hidden");
     if (myReportsLink) myReportsLink.classList.remove("hidden");
+    if (adminLink && user.is_admin) adminLink.classList.remove("hidden");
   }
 
   logoutBtn.addEventListener("click", () => {

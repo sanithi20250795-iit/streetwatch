@@ -34,9 +34,11 @@ function initTabs() {
 
       document.getElementById("admin-reports-tab").classList.add("hidden");
       document.getElementById("admin-users-tab").classList.add("hidden");
+      document.getElementById("admin-analytics-tab").classList.add("hidden");
       document.getElementById(`admin-${tab.dataset.tab}-tab`).classList.remove("hidden");
 
       if (tab.dataset.tab === "users") loadUsers();
+      if (tab.dataset.tab === "analytics") loadAnalytics();
     });
   });
 }
@@ -229,6 +231,74 @@ async function loadUsers() {
       await loadUsers();
     });
   });
+}
+
+// ---------- Analytics tab ----------
+
+let charts = {};
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+async function loadAnalytics() {
+  const res = await fetch("/api/admin/analytics", withAuthHeader());
+  if (!res.ok) return;
+  const data = await res.json();
+
+  document.getElementById("an-total").textContent = data.total;
+  document.getElementById("an-resolved").textContent = data.resolved_count;
+  document.getElementById("an-unresolved").textContent = data.unresolved_count;
+  document.getElementById("an-avg-time").textContent = data.avg_resolution_hours !== null ? data.avg_resolution_hours : "—";
+  document.getElementById("an-common-hazard").textContent = data.most_common_hazard ? HAZARD_LABELS[data.most_common_hazard] : "—";
+
+  renderPerMonthChart(data.reports_per_month);
+  renderSeverityChart(data.by_severity);
+  renderAreasChart(data.top_areas);
+  renderDepartmentTable(data.department_performance);
+}
+
+function renderPerMonthChart(perMonth) {
+  destroyChart("perMonth");
+  const ctx = document.getElementById("chart-per-month");
+  charts.perMonth = new Chart(ctx, {
+    type: "line",
+    data: { labels: perMonth.map((m) => m.month), datasets: [{ label: "Reports", data: perMonth.map((m) => m.count), borderColor: "#e2601c", backgroundColor: "rgba(226, 96, 28, 0.12)", fill: true, tension: 0.25 }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+  });
+}
+
+function renderSeverityChart(bySeverity) {
+  destroyChart("severity");
+  const order = ["low", "medium", "high", "critical"];
+  const colors = { low: "#3b82f6", medium: "#f4c20d", high: "#e2601c", critical: "#dc2626" };
+  const ctx = document.getElementById("chart-severity");
+  charts.severity = new Chart(ctx, {
+    type: "doughnut",
+    data: { labels: order.map((s) => SEVERITY_LABELS[s]), datasets: [{ data: order.map((s) => bySeverity[s] || 0), backgroundColor: order.map((s) => colors[s]) }] },
+    options: { plugins: { legend: { position: "bottom" } } },
+  });
+}
+
+function renderAreasChart(topAreas) {
+  destroyChart("areas");
+  const ctx = document.getElementById("chart-areas");
+  charts.areas = new Chart(ctx, {
+    type: "bar",
+    data: { labels: topAreas.map((a) => a.area), datasets: [{ label: "Reports", data: topAreas.map((a) => a.count), backgroundColor: "#f4c20d" }] },
+    options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } },
+  });
+}
+
+function renderDepartmentTable(departments) {
+  const tbody = document.getElementById("dept-performance-body");
+  if (departments.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" class="empty-state">No reports have been assigned to a department yet.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = departments.map((d) => `
+    <tr><td>${escapeHtml(d.department)}</td><td>${d.total_assigned}</td><td>${d.resolved}</td><td>${d.avg_resolution_hours !== null ? d.avg_resolution_hours : "—"}</td></tr>
+  `).join("");
 }
 
 // ---------- Bootstrap ----------

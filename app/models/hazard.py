@@ -40,6 +40,7 @@ class HazardStatus(str, Enum):
     verified = "verified"
     in_progress = "in_progress"
     resolved = "resolved"
+    rejected = "rejected"
 
 
 class HazardReportBase(SQLModel):
@@ -61,6 +62,9 @@ class HazardReport(HazardReportBase, table=True):
     reporter_id: Optional[int] = Field(default=None, foreign_key="user.id", index=True)
     status: HazardStatus = Field(default=HazardStatus.reported)
     media_url: Optional[str] = Field(default=None)  # path to uploaded photo/video
+    assigned_department: Optional[str] = Field(default=None, max_length=100)
+    admin_notes: Optional[str] = Field(default=None, max_length=1000)
+    resolution_media_url: Optional[str] = Field(default=None)  # photo/video proof of fix
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
