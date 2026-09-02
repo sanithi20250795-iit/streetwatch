@@ -656,3 +656,20 @@
   border-radius: 6px; padding: 14px 18px; margin-bottom: 18px;
 }
 .notification-line { font-size: 13px; margin: 4px 0; color: var(--ink); }
+
+.confirm-wrap { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 16px; }
+.confirm-count { font-weight: 700; font-size: 14px; margin: 0 0 2px; }
+.confirm-prompt { font-size: 12px; color: var(--ink-soft); margin: 0 0 10px; }
+.confirm-active { background: var(--status-resolved) !important; border-color: var(--status-resolved) !important; color: var(--paper) !important; }
+
+.comments-section { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 16px; }
+.comments-section h4 { font-family: var(--font-display); font-size: 14px; margin: 0 0 12px; }
+.comments-list { display: grid; gap: 10px; margin-bottom: 14px; }
+.comment-row { background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; }
+.comment-meta { font-size: 11px; color: var(--ink-soft); margin: 0 0 4px; }
+.comment-text { font-size: 13px; margin: 0; line-height: 1.4; }
+.comment-form { display: flex; gap: 8px; align-items: flex-start; }
+.comment-form textarea {
+  flex: 1; min-height: 44px; padding: 8px 10px; border: 1px solid var(--line);
+  border-radius: 4px; font-family: var(--font-body); font-size: 13px; background: var(--paper); resize: vertical;
+}

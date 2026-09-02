@@ -80,3 +80,22 @@ def get_current_admin(
     if not current_user.is_admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
     return current_user
+
+def get_current_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
+    session: Session = Depends(get_session),
+) -> Optional[User]:
+    """Like get_current_user, but returns None instead of raising when
+    there's no (or an invalid) token. Use this on public endpoints whose
+    response should adapt for a logged-in viewer — e.g. 'does the CURRENT
+    viewer already have a confirmation on this report?' — without forcing
+    a login just to view."""
+    if credentials is None:
+        return None
+    user_id = decode_access_token(credentials.credentials)
+    if user_id is None:
+        return None
+    user = session.get(User, user_id)
+    if user is None or not user.is_active:
+        return None
+    return user

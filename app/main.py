@@ -12,6 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from app.routers import admin, auth, community, reports
 
 from app.database import init_db
 from app.routers import admin, auth, reports
@@ -75,3 +76,8 @@ def serve_my_reports():
 @app.get("/admin")
 def serve_admin():
     return FileResponse("frontend/admin.html")
+
+app.include_router(auth.router)
+app.include_router(reports.router)
+app.include_router(admin.router)
+app.include_router(community.router)

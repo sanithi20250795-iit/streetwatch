@@ -33,6 +33,8 @@ async function trackReport(id) {
     const history = historyRes.ok ? await historyRes.json() : [];
 
     renderTimeline(report, history);
+    await loadConfirmations(report);
+    await loadComments(report.id);
   } catch (err) {
     resultEl.innerHTML = `<p class="empty-state">Something went wrong — please try again.</p>`;
     console.error(err);
@@ -75,6 +77,91 @@ function renderTimeline(report, history) {
       <div class="track-timeline">${stepsHtml}</div>
     </div>
   `;
+}
+
+function confirmCopy(report) {
+  return report.status === "resolved"
+    ? { prompt: "Can you confirm this was actually fixed?", verb: "Confirm it's fixed", noun: "confirmed this was fixed" }
+    : { prompt: "Still seeing this hazard?", verb: "Confirm it's still there", noun: "confirmed this issue" };
+}
+
+async function loadConfirmations(report) {
+  const wrap = document.getElementById("confirm-wrap");
+  if (!wrap) return;
+
+  const res = await fetch(`/api/reports/${report.id}/confirmations`, withAuthHeader());
+  const data = res.ok ? await res.json() : { count: 0, user_confirmed: false };
+  const copy = confirmCopy(report);
+
+  wrap.innerHTML = `
+    <p class="confirm-count">👍 ${data.count} ${data.count === 1 ? "person has" : "people have"} ${copy.noun}</p>
+    <p class="confirm-prompt">${copy.prompt}</p>
+    <button id="confirm-btn" class="btn-ghost-small ${data.user_confirmed ? "confirm-active" : ""}" type="button">
+      ${data.user_confirmed ? "✓ You confirmed this" : copy.verb}
+    </button>
+  `;
+
+  document.getElementById("confirm-btn").addEventListener("click", async () => {
+    if (!isLoggedIn()) {
+      window.location.href = `/login?next=/track?id=${report.id}`;
+      return;
+    }
+    const res = await fetch(`/api/reports/${report.id}/confirm`, withAuthHeader({ method: "POST" }));
+    if (!res.ok) return;
+    await loadConfirmations(report);
+  });
+}
+
+async function loadComments(reportId) {
+  const list = document.getElementById("comments-list");
+  if (!list) return;
+
+  const res = await fetch(`/api/reports/${reportId}/comments`);
+  const comments = res.ok ? await res.json() : [];
+
+  list.innerHTML =
+    comments.length === 0
+      ? `<p class="empty-state">No comments yet.</p>`
+      : comments
+          .map(
+            (c) => `
+        <div class="comment-row">
+          <p class="comment-meta"><strong>${escapeHtml(c.commenter_name)}</strong> · ${formatDate(c.created_at)}</p>
+          <p class="comment-text">${escapeHtml(c.comment)}</p>
+        </div>
+      `
+          )
+          .join("");
+
+  const form = document.getElementById("comment-form");
+  if (!form) return;
+
+  if (!isLoggedIn()) {
+    form.innerHTML = `<p class="empty-state"><a href="/login?next=/track?id=${reportId}">Log in</a> to leave a comment.</p>`;
+    return;
+  }
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    const input = document.getElementById("comment-input");
+    const text = input.value.trim();
+    if (!text) return;
+
+    const res = await fetch(
+      `/api/reports/${reportId}/comments`,
+      withAuthHeader({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ comment: text }),
+      })
+    );
+    if (!res.ok) {
+      alert("Couldn't post your comment — try again.");
+      return;
+    }
+    input.value = "";
+    await loadComments(reportId);
+  };
 }
 
 document.addEventListener("DOMContentLoaded", () => {
