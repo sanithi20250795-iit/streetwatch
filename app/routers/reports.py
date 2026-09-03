@@ -6,6 +6,12 @@ brief asks for:
   - POST   /api/reports         -> create a report (the main form submission)
   - GET    /api/reports         -> list all reports (feeds the map)
   - PATCH  /api/reports/{id}    -> update a report's status (second interaction)
+
+AI hooks (new): after an optional photo is saved, we call the image
+classifier and the severity estimator and store their output on the
+report as ai_hazard_type / ai_confidence / ai_suggested_severity. Both
+calls are wrapped so a failure (or no API key configured) never blocks
+report creation — they're enrichment, not a dependency.
 """
 import os
 import shutil
@@ -29,6 +35,7 @@ from app.models.hazard import (
     Severity,
 )
 from app.models.user import User
+from app.services import ai_service
 
 router = APIRouter(prefix="/api/reports", tags=["reports"])
 
@@ -60,6 +67,7 @@ async def create_report(
     the text fields."""
 
     media_url = None
+    saved_filepath = None
     if photo is not None and photo.filename:
         ext = os.path.splitext(photo.filename)[1].lower()
         if ext not in ALLOWED_MEDIA_EXTENSIONS:
@@ -74,6 +82,18 @@ async def create_report(
         with open(filepath, "wb") as f:
             f.write(contents)
         media_url = f"/static/uploads/{filename}"
+        saved_filepath = filepath
+
+    # --- AI enrichment (never raises — see ai_service docstrings) ---
+    ai_hazard_type = None
+    ai_confidence = None
+    if saved_filepath is not None:
+        classification = ai_service.classify_hazard_image(saved_filepath)
+        if classification:
+            ai_hazard_type = classification.get("hazard_type")
+            ai_confidence = classification.get("confidence")
+
+    ai_suggested_severity = ai_service.estimate_severity(description, saved_filepath).value
 
     report = HazardReport(
         hazard_type=hazard_type,
@@ -88,6 +108,9 @@ async def create_report(
         reporter_id=current_user.id,
         reporter_name=current_user.name,
         media_url=media_url,
+        ai_hazard_type=ai_hazard_type,
+        ai_confidence=ai_confidence,
+        ai_suggested_severity=ai_suggested_severity,
     )
     session.add(report)
     session.commit()

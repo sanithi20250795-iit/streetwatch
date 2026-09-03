@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------
 // Streetwatch frontend logic.
-// Talks to the FastAPI backend at /api/reports.
+// Talks to the FastAPI backend at /api/reports and /api/analytics.
 // No frameworks — plain JS + Leaflet, kept simple on purpose so it's
 // easy to explain in your technical documentation.
 //
@@ -10,6 +10,7 @@
 // ---------------------------------------------------------------
 
 const API_BASE = "/api/reports";
+const ANALYTICS_BASE = "/api/analytics";
 
 // Default map view — adjust to your city/area.
 const DEFAULT_CENTER = [6.9271, 79.8612]; // Colombo, Sri Lanka
@@ -20,6 +21,10 @@ let markers = {}; // report.id -> Leaflet marker
 let pickedLatLng = null;
 let currentReports = [];
 
+// Risk-hotspot layer (predictive analytics feature)
+let riskLayerGroup = null;
+let riskVisible = false;
+
 // ---------- Init ----------
 
 function initMap() {
@@ -29,6 +34,8 @@ function initMap() {
     attribution: "&copy; OpenStreetMap contributors",
     maxZoom: 19,
   }).addTo(map);
+
+  riskLayerGroup = L.layerGroup(); // not added to map until toggled on
 
   // Clicking the map while the report form is open drops the pin.
   map.on("click", (e) => {
@@ -115,6 +122,9 @@ async function loadReports() {
   if (countEl) {
     countEl.textContent = `${currentReports.length} report${currentReports.length === 1 ? "" : "s"}`;
   }
+
+  // Keep the risk layer in sync with the active hazard-type filter, if it's showing.
+  if (riskVisible) loadRiskAreas();
 }
 
 function initFilters() {
@@ -141,6 +151,9 @@ function initFilters() {
     document.getElementById("filter-location").value = "";
     loadReports();
   });
+
+  const riskBtn = document.getElementById("risk-toggle-btn");
+  if (riskBtn) riskBtn.addEventListener("click", toggleRiskLayer);
 }
 
 function renderMarkers(reports) {
@@ -161,6 +174,22 @@ function renderMarkers(reports) {
   });
 }
 
+function aiInsightHtml(report) {
+  // Both fields are optional/nullable — only show what's actually present.
+  const parts = [];
+  if (report.ai_hazard_type) {
+    const label = HAZARD_LABELS[report.ai_hazard_type] || report.ai_hazard_type;
+    const confidence = report.ai_confidence != null ? ` (${Math.round(report.ai_confidence * 100)}% conf.)` : "";
+    parts.push(`photo looks like <b>${label}</b>${confidence}`);
+  }
+  if (report.ai_suggested_severity && report.ai_suggested_severity !== report.severity) {
+    const label = SEVERITY_LABELS[report.ai_suggested_severity] || report.ai_suggested_severity;
+    parts.push(`suggested severity: <b>${label}</b>`);
+  }
+  if (parts.length === 0) return "";
+  return `<p class="popup-row popup-ai" style="opacity:0.75;font-size:0.85em;margin-top:6px;">🤖 AI: ${parts.join(" · ")}</p>`;
+}
+
 function popupHtml(report) {
   const media = report.media_url && isImageUrl(report.media_url)
     ? `<img src="${report.media_url}" alt="Attached photo" style="width:100%;max-width:220px;border-radius:4px;margin-top:8px;display:block;" />`
@@ -177,6 +206,7 @@ function popupHtml(report) {
       <p class="popup-row"><b>Status:</b> ${STATUS_LABELS[report.status]}</p>
       <p class="popup-row"><b>Severity:</b> ${SEVERITY_LABELS[report.severity]}</p>
       <p class="popup-row popup-id"><b>Report ID:</b> #${formatReportId(report.id)}</p>
+      ${aiInsightHtml(report)}
       ${media}
     </div>
   `;
@@ -270,6 +300,76 @@ async function updateStatus(id, status) {
   await loadReports();
 }
 
+// ---------- Predictive analytics: risk-hotspot layer ----------
+
+function riskColor(score) {
+  // Simple low->high scale reusing the same palette as severity markers.
+  if (score >= 4) return "#dc2626";
+  if (score >= 2) return "#e2601c";
+  if (score >= 1) return "#f4c20d";
+  return "#3b82f6";
+}
+
+async function loadRiskAreas() {
+  const hazardType = document.getElementById("filter-hazard-type").value;
+  const params = new URLSearchParams();
+  if (hazardType) params.set("hazard_type", hazardType);
+
+  const res = await fetch(`${ANALYTICS_BASE}/risk-areas?${params.toString()}`);
+  if (!res.ok) {
+    console.error("Failed to load risk areas", await res.text());
+    return;
+  }
+  const cells = await res.json();
+
+  riskLayerGroup.clearLayers();
+  cells.forEach((cell) => {
+    const circle = L.circle([cell.latitude, cell.longitude], {
+      radius: 550, // roughly matches the backend's ~0.01-degree grid cell
+      color: riskColor(cell.risk_score),
+      weight: 1,
+      fillColor: riskColor(cell.risk_score),
+      fillOpacity: 0.25,
+    });
+    circle.bindTooltip(
+      `${cell.report_count} report${cell.report_count === 1 ? "" : "s"} nearby · risk score ${cell.risk_score}`
+    );
+    riskLayerGroup.addLayer(circle);
+  });
+}
+
+function toggleRiskLayer() {
+  riskVisible = !riskVisible;
+  const btn = document.getElementById("risk-toggle-btn");
+
+  if (riskVisible) {
+    loadRiskAreas();
+    riskLayerGroup.addTo(map);
+    if (btn) btn.classList.add("active");
+  } else {
+    map.removeLayer(riskLayerGroup);
+    if (btn) btn.classList.remove("active");
+  }
+}
+
+// ---------- Duplicate detection ----------
+
+async function checkForDuplicate(hazardType, lat, lng) {
+  const params = new URLSearchParams({
+    hazard_type: hazardType,
+    latitude: lat,
+    longitude: lng,
+  });
+  try {
+    const res = await fetch(`${ANALYTICS_BASE}/check-duplicate?${params.toString()}`);
+    if (!res.ok) return { possible_duplicate: false, matches: [] };
+    return await res.json();
+  } catch (err) {
+    console.error("Duplicate check failed", err);
+    return { possible_duplicate: false, matches: [] }; // never block submission on this failing
+  }
+}
+
 // ---------- Form / modal ----------
 
 function initModal() {
@@ -296,6 +396,26 @@ function initModal() {
     if (!pickedLatLng) {
       alert("Click a location on the map, or use 'Use My Location', first.");
       return;
+    }
+
+    // --- Duplicate check: warn before creating a second report for what
+    // might be the same real-world hazard. Never blocks submission outright
+    // — the person filing the report always has the final say. ---
+    const hazardType = form.elements["hazard_type"].value;
+    const { possible_duplicate, matches } = await checkForDuplicate(
+      hazardType,
+      pickedLatLng.lat,
+      pickedLatLng.lng
+    );
+
+    if (possible_duplicate) {
+      const list = matches
+        .map((m) => `#${formatReportId(m.id)} — ${m.title} (${STATUS_LABELS[m.status] || m.status})`)
+        .join("\n");
+      const proceed = confirm(
+        `This may already be reported nearby:\n\n${list}\n\nSubmit a new report anyway?`
+      );
+      if (!proceed) return;
     }
 
     // Sending FormData (not JSON) because the backend endpoint accepts

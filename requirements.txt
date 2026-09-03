@@ -4,3 +4,6 @@ sqlmodel==0.0.22
 python-multipart==0.0.9
 pyjwt==2.9.0
 bcrypt==4.2.0
+anthropic==0.40.0
+pillow==10.4.0
+numpy==2.1.2
