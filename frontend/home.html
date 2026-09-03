@@ -21,15 +21,19 @@
       </div>
     </a>
     <div class="nav-actions">
-      <a href="/" class="nav-link">Home</a>
-      <a href="/map" class="nav-link">View Map</a>
-      <a href="/track" class="nav-link">Track a Report</a>
-      <a href="/my-reports" id="my-reports-link" class="nav-link hidden">My Reports</a>
-      <a href="/admin" id="admin-link" class="nav-link hidden">Admin</a>
+      <a href="/" class="nav-link" data-i18n="nav.home">Home</a>
+      <a href="/map" class="nav-link" data-i18n="nav.map">View Map</a>
+      <a href="/track" class="nav-link" data-i18n="nav.track">Track a Report</a>
+      <a href="/my-reports" id="my-reports-link" class="nav-link hidden" data-i18n="nav.myReports">My Reports</a>
+      <a href="/admin" id="admin-link" class="nav-link hidden" data-i18n="nav.admin">Admin</a>
+      <div class="lang-switch">
+        <button data-lang-btn="en" class="lang-btn">EN</button>
+        <button data-lang-btn="si" class="lang-btn">සිං</button>
+      </div>
       <div class="nav-auth">
         <span id="user-greeting" class="user-greeting hidden"></span>
-        <button id="logout-btn" class="btn-ghost hidden">Log out</button>
-        <a id="nav-login-btn" href="/login" class="btn-primary">Log in</a>
+        <button id="logout-btn" class="btn-ghost hidden" data-i18n="nav.logout">Log out</button>
+        <a id="nav-login-btn" href="/login" class="btn-primary" data-i18n="nav.login">Log in</a>
       </div>
     </div>
   </header>
@@ -59,6 +63,14 @@
         <div class="legend-row"><span class="dot dot-resolved"></span> Resolved</div>
       </div>
     </div>
+
+    <p class="eyebrow" data-i18n="hero.eyebrow">SDG 11 — Sustainable Cities &amp; Communities</p>
+    <h2>
+      <span data-i18n="hero.title1">Broken streetlight?</span><br>
+      <span data-i18n="hero.title2">Flooded road?</span><br>
+      <span class="accent" data-i18n="hero.titleAccent">Log it. Track it. Fix it.</span>
+    </h2>
+    <p class="hero-sub" data-i18n="hero.subtitle">...</p>
   </main>
 
   <!-- Emergency / high-risk alerts — hidden entirely when there are none -->
@@ -220,6 +232,9 @@
   </div>
 </footer>
 
+
+<script src="/static/i18n.js"></script>
+<script src="/static/auth.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="/static/auth.js"></script>
 <script src="/static/home.js"></script>

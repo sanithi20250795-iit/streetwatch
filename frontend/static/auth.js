@@ -131,6 +131,9 @@ function withAuthHeader(options = {}) {
 
 /** Call on pages that show a nav bar with login/logout state (e.g. home.html, map.html). */
 function initAuthNav() {
+  setFooterYear();
+  if (typeof initLanguageSwitcher === "function") initLanguageSwitcher();
+
   const greeting = document.getElementById("user-greeting");
   const logoutBtn = document.getElementById("logout-btn");
   const loginBtn = document.getElementById("nav-login-btn");
@@ -140,13 +143,20 @@ function initAuthNav() {
 
   const user = getStoredUser();
   if (user) {
-    greeting.textContent = `Hi, ${user.name}`;
+    greeting.dataset.userName = user.name;
+    greeting.textContent = `${typeof t === "function" ? t("nav.hiPrefix") : "Hi,"} ${user.name}`;
     greeting.classList.remove("hidden");
     logoutBtn.classList.remove("hidden");
     if (loginBtn) loginBtn.classList.add("hidden");
     if (myReportsLink) myReportsLink.classList.remove("hidden");
     if (adminLink && user.is_admin) adminLink.classList.remove("hidden");
   }
+  // ...rest stays the same (logout click listener)
+function setFooterYear() {
+  const yearEl = document.getElementById("footer-year");
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+}
+
 
   logoutBtn.addEventListener("click", () => {
     clearSession();
