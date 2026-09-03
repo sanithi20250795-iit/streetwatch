@@ -174,13 +174,70 @@
 }
 
 /* ---------- Footer ---------- */
-.site-footer {
-  text-align: center;
-  padding: 24px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--ink-soft);
-  border-top: 1px solid var(--line);
+/* ---------- Footer ---------- */
+.site-footer-full {
+  background: var(--asphalt);
+  color: #cfcbbe;
+  margin-top: 40px;
+}
+
+.footer-top {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 50px 48px 36px;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1.2fr;
+  gap: 32px;
+}
+
+@media (max-width: 860px) {
+  .footer-top { grid-template-columns: 1fr 1fr; padding: 40px 24px 28px; }
+}
+@media (max-width: 480px) {
+  .footer-top { grid-template-columns: 1fr; }
+}
+
+.footer-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+
+.footer-logo .brand-mark {
+  font-size: 20px; color: var(--safety-yellow); background: var(--asphalt);
+  border: 2px solid var(--safety-yellow); border-radius: 6px;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+}
+
+.footer-logo-text {
+  font-family: var(--font-display); font-size: 17px; color: var(--paper); letter-spacing: 0.5px;
+}
+
+.footer-tagline {
+  font-size: 13px; line-height: 1.6; color: #a8a49a; margin: 0; max-width: 32ch;
+  white-space: pre-line;
+}
+
+.footer-col h5 {
+  font-family: var(--font-mono); font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.6px; color: #8b877d; margin: 0 0 14px;
+}
+
+.footer-col a {
+  display: block; color: #cfcbbe; text-decoration: none; font-size: 13px;
+  margin-bottom: 10px; opacity: 0.9;
+}
+.footer-col a:hover { opacity: 1; color: var(--safety-yellow); }
+
+.footer-about-text { font-size: 12.5px; line-height: 1.6; color: #a8a49a; margin: 0 0 8px; }
+
+.footer-bottom {
+  max-width: 1180px; margin: 0 auto; padding: 18px 48px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+  font-family: var(--font-mono); font-size: 11.5px; color: #8b877d;
+}
+
+.footer-bottom .footer-tag { color: var(--safety-yellow); font-weight: 700; }
+
+@media (max-width: 480px) {
+  .footer-bottom { padding: 16px 24px; justify-content: center; text-align: center; }
 }
 
 /* ---------- Auth page ---------- */
