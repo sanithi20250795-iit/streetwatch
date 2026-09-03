@@ -90,11 +90,16 @@ async function loadConfirmations(report) {
   if (!wrap) return;
 
   const res = await fetch(`/api/reports/${report.id}/confirmations`, withAuthHeader());
-  const data = res.ok ? await res.json() : { count: 0, user_confirmed: false };
+  const data = res.ok
+    ? await res.json()
+    : { count: 0, user_confirmed: false, reliability_label: "Unverified", reliability_score: 0 };
   const copy = confirmCopy(report);
 
   wrap.innerHTML = `
-    <p class="confirm-count">👍 ${data.count} ${data.count === 1 ? "person has" : "people have"} ${copy.noun}</p>
+    <p class="confirm-count">
+      👍 ${data.count} ${data.count === 1 ? "person has" : "people have"} ${copy.noun}
+      <span class="reliability-badge reliability-${data.reliability_score}">${data.reliability_label}</span>
+    </p>
     <p class="confirm-prompt">${copy.prompt}</p>
     <button id="confirm-btn" class="btn-ghost-small ${data.user_confirmed ? "confirm-active" : ""}" type="button">
       ${data.user_confirmed ? "✓ You confirmed this" : copy.verb}

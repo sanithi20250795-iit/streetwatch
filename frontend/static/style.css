@@ -588,3 +588,20 @@ body {
   .nav-actions { gap: 12px; }
   .nav-auth { border-left: none; padding-left: 0; margin-left: 0; }
 }
+
+/* ---------- Reliability badge (community confirmations) ---------- */
+.reliability-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+}
+.reliability-0   { background: var(--line); color: var(--ink-soft); }
+.reliability-40  { background: #fde68a; color: #7a5c00; }
+.reliability-70  { background: #bfdbfe; color: #1e40af; }
+.reliability-100 { background: #bbf7d0; color: #166534; }

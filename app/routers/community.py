@@ -28,6 +28,21 @@ from app.models.user import User
 router = APIRouter(prefix="/api/reports", tags=["community"])
 
 
+def _reliability_from_count(count: int) -> dict:
+    """Turn a confirmation count into a simple, explainable reliability
+    label. Deliberately NOT a model or a weighted formula — just bucketed
+    thresholds, so it's easy to justify in a write-up: more independent
+    citizens confirming a hazard is still there makes it more likely to be
+    real and current, nothing fancier than that."""
+    if count == 0:
+        return {"reliability_label": "Unverified", "reliability_score": 0}
+    if count <= 2:
+        return {"reliability_label": "Some confirmation", "reliability_score": 40}
+    if count <= 5:
+        return {"reliability_label": "Well confirmed", "reliability_score": 70}
+    return {"reliability_label": "Highly reliable", "reliability_score": 100}
+
+
 @router.post("/{report_id}/confirm")
 def toggle_confirmation(
     report_id: int,
@@ -57,7 +72,7 @@ def toggle_confirmation(
     count = session.exec(
         select(ReportConfirmation).where(ReportConfirmation.report_id == report_id)
     ).all()
-    return {"confirmed": confirmed, "count": len(count)}
+    return {"confirmed": confirmed, "count": len(count), **_reliability_from_count(len(count))}
 
 
 @router.get("/{report_id}/confirmations")
@@ -76,7 +91,11 @@ def get_confirmations(
     if current_user:
         user_confirmed = any(c.user_id == current_user.id for c in confirmations)
 
-    return {"count": len(confirmations), "user_confirmed": user_confirmed}
+    return {
+        "count": len(confirmations),
+        "user_confirmed": user_confirmed,
+        **_reliability_from_count(len(confirmations)),
+    }
 
 
 @router.get("/{report_id}/comments", response_model=List[ReportComment])
