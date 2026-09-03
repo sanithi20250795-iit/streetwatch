@@ -374,7 +374,8 @@ body {
 .coords-readout.picked { color: var(--status-resolved); }
 
 /* Leaflet popup tweaks */
-.leaflet-popup-content { font-family: var(--font-body); font-size: 13px; }
+.leaflet-popup-content { font-family: var(--font-body); font-size: 12px; margin: 10px 12px; }
+.leaflet-popup-content-wrapper { border-radius: 8px; }
 
 /* ---------- Filters bar ---------- */
 .filters-bar {
@@ -440,12 +441,21 @@ body {
   position: absolute;
   bottom: 16px;
   left: 16px;
+  max-width: 168px;
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 10px 14px;
   z-index: 500;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.legend-note {
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  opacity: 0.85;
+  margin: 2px 0 0;
 }
 
 .legend-title {
@@ -473,11 +483,44 @@ body {
   border: 1px solid rgba(0,0,0,0.2);
 }
 
-/* ---------- Popup card (rendered inside Leaflet popups) ---------- */
-.popup-card { min-width: 180px; }
-.popup-title { display: block; font-size: 14px; margin-bottom: 6px; }
-.popup-row { margin: 2px 0; font-size: 12px; line-height: 1.4; }
-.popup-id { color: var(--ink-soft); font-family: var(--font-mono); font-size: 11px; }
+/* ---------- Popup card (rendered inside Leaflet popups) ----------
+   Kept compact on purpose: this box sits ON TOP of the map, so every
+   extra row of text is map real estate the user loses. */
+.popup-card { min-width: 170px; max-width: 200px; }
+.popup-title { display: block; font-size: 13px; margin-bottom: 4px; line-height: 1.3; }
+.popup-row { margin: 2px 0; font-size: 11px; line-height: 1.4; color: var(--ink-soft); }
+.popup-id { color: var(--ink-soft); font-family: var(--font-mono); font-size: 10px; }
+
+.popup-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin: 4px 0;
+}
+.popup-meta .status-pill,
+.popup-meta .severity-pill {
+  font-size: 9px;
+  padding: 2px 6px;
+}
+
+.popup-ai {
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  opacity: 0.85;
+  margin: 4px 0 0;
+}
+
+.popup-thumb {
+  width: 100%;
+  max-height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-top: 6px;
+  display: block;
+  cursor: zoom-in;
+}
 
 .status-pill.verified { background: #3b82f6; color: var(--paper); }
 
