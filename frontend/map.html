@@ -112,6 +112,10 @@
         <p class="legend-title" style="margin-top:10px;">Risk hotspots</p>
         <p class="legend-note">Circle = report frequency in that area.</p>
       </div>
+      <div id="map-pick-banner" class="map-pick-banner hidden">
+        <span>📍 Click anywhere on the map to place your pin</span>
+        <button type="button" id="cancel-pick-btn" class="btn-ghost-small">Cancel</button>
+      </div>
     </section>
 
     <aside class="list-panel">
@@ -194,8 +198,11 @@
 
         <div class="location-field">
           <div class="location-field-head">
-            <p class="ticket-note">Click a point on the map to drop your pin, or:</p>
-            <button type="button" id="use-my-location-btn" class="btn-locate">📍 Use My Location</button>
+            <p class="ticket-note">Set the location:</p>
+            <div class="location-field-buttons">
+              <button type="button" id="pick-on-map-btn" class="btn-locate">🗺️ Pick on Map</button>
+              <button type="button" id="use-my-location-btn" class="btn-locate">📍 Use My Location</button>
+            </div>
           </div>
           <p id="picked-coords" class="coords-readout">No location selected yet</p>
         </div>

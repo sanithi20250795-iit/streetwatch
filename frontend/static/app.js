@@ -39,9 +39,9 @@ function initMap() {
 
   // Clicking the map while the report form is open drops the pin.
   map.on("click", (e) => {
-    const modal = document.getElementById("report-modal");
-    if (modal.classList.contains("hidden")) return;
+    if (!pickingOnMap) return;
     setPickedLocation(e.latlng.lat, e.latlng.lng);
+    stopPickingOnMap();
   });
 }
 
@@ -81,6 +81,18 @@ function useMyLocation() {
     },
     { enableHighAccuracy: true, timeout: 10000 }
   );
+}
+
+function startPickingOnMap() {
+  pickingOnMap = true;
+  document.getElementById("report-modal").classList.add("hidden");
+  document.getElementById("map-pick-banner").classList.remove("hidden");
+}
+
+function stopPickingOnMap() {
+  pickingOnMap = false;
+  document.getElementById("map-pick-banner").classList.add("hidden");
+  document.getElementById("report-modal").classList.remove("hidden");
 }
 
 // ---------- Data loading ----------
@@ -389,6 +401,8 @@ function initModal() {
   closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
 
   document.getElementById("use-my-location-btn").addEventListener("click", useMyLocation);
+  document.getElementById("pick-on-map-btn").addEventListener("click", startPickingOnMap);
+  document.getElementById("cancel-pick-btn").addEventListener("click", stopPickingOnMap);
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
