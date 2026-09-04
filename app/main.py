@@ -77,3 +77,11 @@ def serve_my_reports():
 @app.get("/admin")
 def serve_admin():
     return FileResponse("frontend/admin.html")
+
+@app.get("/privacy")
+def serve_privacy():
+    return FileResponse("frontend/privacy.html")
+
+@app.get("/terms")
+def serve_terms():
+    return FileResponse("frontend/terms.html")

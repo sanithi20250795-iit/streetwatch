@@ -24,6 +24,46 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-body);
+  position: relative;
+}
+
+/* ---------- Background watermark ----------
+   Two layers, both fixed and behind all content, so every page — even
+   sparse ones like Track or My Reports — has some visual texture instead
+   of large flat empty space. Neither layer intercepts clicks. */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(28, 31, 30, 0.025),
+    rgba(28, 31, 30, 0.025) 22px,
+    transparent 22px,
+    transparent 44px
+  );
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  right: -60px;
+  bottom: -60px;
+  width: 520px;
+  height: 520px;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 6 L96 90 L4 90 Z' fill='none' stroke='%231c1f1e' stroke-width='5' stroke-linejoin='round'/%3E%3Ctext x='50' y='72' font-family='Arial, sans-serif' font-size='38' font-weight='bold' text-anchor='middle' fill='%231c1f1e'%3E!%3C/text%3E%3C/svg%3E");
+}
+
+@media (max-width: 720px) {
+  body::after { width: 340px; height: 340px; right: -40px; bottom: -40px; }
 }
 
 /* ---------- Topbar ---------- */
