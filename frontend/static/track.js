@@ -75,6 +75,17 @@ function renderTimeline(report, history) {
       <p class="track-desc">${escapeHtml(report.description)}</p>
       ${media}
       <div class="track-timeline">${stepsHtml}</div>
+
+      <div id="confirm-wrap" class="confirm-wrap"></div>
+
+      <div class="comments-section">
+        <h4>Comments</h4>
+        <div id="comments-list" class="comments-list"></div>
+        <form id="comment-form" class="comment-form">
+          <textarea id="comment-input" placeholder="Add a comment…" maxlength="500" required></textarea>
+          <button type="submit" class="btn-primary">Post</button>
+        </form>
+      </div>
     </div>
   `;
 }
