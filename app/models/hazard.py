@@ -68,8 +68,7 @@ class HazardReport(HazardReportBase, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    # --- AI-feature fields (all optional/nullable — never block report
-    # creation if the AI call fails or isn't configured) ---
+  
     ai_hazard_type: Optional[str] = Field(default=None)       # zero-shot classifier's guess
     ai_confidence: Optional[float] = Field(default=None)      # classifier's confidence, 0.0-1.0
     ai_suggested_severity: Optional[str] = Field(default=None)  # text/image heuristic's suggestion
