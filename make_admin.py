@@ -13,9 +13,9 @@ import sys
 from sqlmodel import Session, select
 
 from app.database import engine, init_db
-from app.models.hazard import HazardReport  # noqa: F401 — ensures table is registered
-from app.models.status_history import StatusHistory  # noqa: F401
-from app.models.feedback import ReportFeedback  # noqa: F401
+from app.models.hazard import HazardReport  
+from app.models.status_history import StatusHistory  
+from app.models.feedback import ReportFeedback  
 from app.models.user import User
 
 
