@@ -18,8 +18,7 @@ from sqlmodel import Session, select
 from app.database import get_session
 from app.models.user import User
 
-# In a real deployment, set SECRET_KEY via an environment variable and
-# never commit it. This fallback is fine for local dev / coursework only.
+
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-change-me-before-deploying")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 1 week
