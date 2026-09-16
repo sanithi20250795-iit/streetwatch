@@ -28,8 +28,6 @@ from app.models.user import AdminUserUpdate, User, UserRead
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
-# Reuses the same upload directory as citizen report photos — main.py's
-# /static mount already covers this, so no extra mounting needed here.
 UPLOAD_DIR = "frontend/static/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 ALLOWED_MEDIA_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".mp4", ".mov", ".webm"}
