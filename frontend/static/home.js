@@ -1,9 +1,3 @@
-// ---------------------------------------------------------------
-// Homepage logic.
-// Depends on auth.js being loaded first (STATUS_LABELS, HAZARD_LABELS,
-// colorForStatus, escapeHtml, initAuthNav).
-// ---------------------------------------------------------------
-
 const HOME_DEFAULT_CENTER = [6.9271, 79.8612]; // Colombo, Sri Lanka
 const HOME_DEFAULT_ZOOM = 11;
 
