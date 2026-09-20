@@ -30,9 +30,8 @@ from sqlmodel import Session, select
 
 from app.models.hazard import HazardReport, HazardStatus, HazardType, Severity
 
-# ---------------------------------------------------------------------------
+
 # 1. Duplicate detection
-# ---------------------------------------------------------------------------
 
 DUPLICATE_RADIUS_METERS = 50
 DUPLICATE_TIME_WINDOW_HOURS = 72
@@ -78,9 +77,7 @@ def find_possible_duplicates(
     ]
 
 
-# ---------------------------------------------------------------------------
 # 2. Severity estimation
-# ---------------------------------------------------------------------------
 
 SEVERITY_ORDER = [Severity.low, Severity.medium, Severity.high, Severity.critical]
 
@@ -141,9 +138,7 @@ def estimate_severity(description: str, image_path: Optional[str] = None) -> Sev
     return level
 
 
-# ---------------------------------------------------------------------------
 # 3. Image classification (zero-shot, via a vision-capable Claude model)
-# ---------------------------------------------------------------------------
 
 CLASSIFICATION_MODEL = os.environ.get("STREETWATCH_VISION_MODEL", "claude-haiku-4-5-20251001")
 HAZARD_LABELS = [t.value for t in HazardType]
@@ -216,10 +211,7 @@ def classify_hazard_image(image_path: str) -> Optional[dict]:
     except Exception:
         return None
 
-
-# ---------------------------------------------------------------------------
 # 4. Predictive analytics — recency-weighted frequency per grid cell
-# ---------------------------------------------------------------------------
 
 GRID_SIZE_DEGREES = 0.01  # ~1.1km near the equator; coarse on purpose for a demo
 
