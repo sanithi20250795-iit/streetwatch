@@ -1,9 +1,8 @@
-// ---------------------------------------------------------------
 // Track-by-ID page logic.
 // Depends on auth.js being loaded first (STATUS_LABELS, HAZARD_LABELS,
 // SEVERITY_LABELS, colorForStatus, formatReportId, formatDate,
 // escapeHtml, initAuthNav).
-// ---------------------------------------------------------------
+
 
 // Fixed lifecycle order — this is the sequence the timeline is drawn in,
 // regardless of what order history rows happen to be in.
