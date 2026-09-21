@@ -1,4 +1,4 @@
-const HOME_DEFAULT_CENTER = [6.9271, 79.8612]; // Colombo, Sri Lanka
+const HOME_DEFAULT_CENTER = [6.9271, 79.8612];
 const HOME_DEFAULT_ZOOM = 11;
 
 async function loadStats() {
@@ -12,7 +12,6 @@ async function loadStats() {
     document.getElementById("stat-progress").textContent = stats.in_progress;
     document.getElementById("stat-resolved").textContent = stats.resolved;
 
-    // Fill category counts from the same aggregate response.
     Object.entries(stats.by_type || {}).forEach(([type, count]) => {
       const el = document.querySelector(`[data-count-for="${type}"]`);
       if (el) el.textContent = count;
