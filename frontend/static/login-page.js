@@ -1,6 +1,4 @@
-// ---------------------------------------------------------------
 // Login/register page logic.
-// ---------------------------------------------------------------
 
 function getNextParam() {
   const params = new URLSearchParams(window.location.search);
