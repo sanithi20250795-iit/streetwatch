@@ -84,7 +84,6 @@ async def create_report(
         media_url = f"/static/uploads/{filename}"
         saved_filepath = filepath
 
-    # --- AI enrichment (never raises — see ai_service docstrings) ---
     ai_hazard_type = None
     ai_confidence = None
     if saved_filepath is not None:
