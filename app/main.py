@@ -13,7 +13,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from app.routers import admin, analytics, auth, community, reports
-
 from app.database import init_db
 
 app = FastAPI(
@@ -33,7 +32,6 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup():
     init_db()
-
 
 app.include_router(auth.router)
 app.include_router(reports.router)
