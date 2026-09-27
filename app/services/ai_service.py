@@ -260,4 +260,5 @@ def compute_area_risk(
                 "sample_report_ids": report_ids[(lat, lon)][:5],
             }
         )
+      
     return results
