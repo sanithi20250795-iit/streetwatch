@@ -40,6 +40,5 @@ def main():
         role = "ADMIN" if user.is_admin else "citizen"
         print(f"{user.name} ({user.email}) is now a {role}.")
 
-
 if __name__ == "__main__":
     main()
