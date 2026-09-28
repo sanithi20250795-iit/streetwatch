@@ -214,6 +214,7 @@ Authenticated requests send `Authorization: Bearer <token>`, where
 
 ## Notes for the technical documentation writeup
 
+
 - **Problem statement:** Local infrastructure hazards often go unreported,
   or are reported redundantly and inconsistently, because there's no shared,
   visible log — StreetWatch gives citizens a lightweight way to flag issues
