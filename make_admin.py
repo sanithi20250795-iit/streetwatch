@@ -9,7 +9,6 @@ There's no public signup path for admin accounts on purpose — this keeps
 that decision out of the API entirely.
 """
 import sys
-
 from sqlmodel import Session, select
 
 from app.database import engine, init_db
