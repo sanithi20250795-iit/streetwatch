@@ -1,9 +1,4 @@
-"""
-Routes for registration and login.
 
-  - POST /api/auth/register  -> create an account
-  - POST /api/auth/login     -> exchange email+password for a JWT
-"""
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
