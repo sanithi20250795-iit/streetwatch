@@ -8,7 +8,6 @@ from app.models.user import Token, User, UserLogin, UserRegister, UserRead
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-
 @router.post("/register", response_model=Token, status_code=201)
 def register(user_in: UserRegister, session: Session = Depends(get_session)):
     existing = session.exec(select(User).where(User.email == user_in.email)).first()
