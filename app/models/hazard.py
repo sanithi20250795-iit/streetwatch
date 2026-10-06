@@ -73,7 +73,6 @@ class HazardReport(HazardReportBase, table=True):
     ai_confidence: Optional[float] = Field(default=None)      # classifier's confidence, 0.0-1.0
     ai_suggested_severity: Optional[str] = Field(default=None)  # text/image heuristic's suggestion
 
-
 class HazardReportStatusUpdate(SQLModel):
     """Shape of the JSON body clients send when updating status."""
     status: HazardStatus
