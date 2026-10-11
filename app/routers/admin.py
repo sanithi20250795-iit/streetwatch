@@ -16,10 +16,8 @@ import os
 import uuid
 from datetime import datetime, timezone
 from typing import List, Optional
-
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from sqlmodel import Session, select
-
 from app.auth import get_current_admin
 from app.database import get_session
 from app.models.hazard import HazardReport, HazardStatus, HazardType, Severity
