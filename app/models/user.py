@@ -7,7 +7,6 @@ from typing import Optional
 
 from sqlmodel import SQLModel, Field
 
-
 class UserBase(SQLModel):
     name: str = Field(min_length=1, max_length=100)
     email: str = Field(unique=True, index=True, max_length=255)
