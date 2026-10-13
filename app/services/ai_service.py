@@ -30,9 +30,7 @@ from sqlmodel import Session, select
 
 from app.models.hazard import HazardReport, HazardStatus, HazardType, Severity
 
-
 # 1. Duplicate detection
-
 DUPLICATE_RADIUS_METERS = 50
 DUPLICATE_TIME_WINDOW_HOURS = 72
 
