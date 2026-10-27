@@ -44,7 +44,6 @@ def haversine_distance_meters(lat1: float, lon1: float, lat2: float, lon2: float
     a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
     return 2 * R * math.asin(math.sqrt(a))
 
-
 def find_possible_duplicates(
     session: Session,
     hazard_type: HazardType,
