@@ -75,6 +75,7 @@ def serve_my_reports():
 def serve_admin():
     return FileResponse("frontend/admin.html")
 
+
 @app.get("/privacy")
 def serve_privacy():
     return FileResponse("frontend/privacy.html")
